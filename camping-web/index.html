@@ -509,6 +509,10 @@ footer .fcol p{margin-bottom:4px;}
 .mnav a{color:#fff;font-size:20px;font-weight:600;padding:15px 0;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer;}
 .mnav a.btn{border:none;justify-content:center;margin-top:20px;color:var(--forest);}
 .mnav .mclose{position:absolute;top:24px;right:28px;background:none;border:none;color:#fff;font-size:32px;cursor:pointer;padding:0;width:auto;height:auto;}
+.msession{display:flex;flex-direction:column;gap:4px;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.16);}
+.msession .muser{color:#bfe8cf;font-size:15px;font-weight:600;padding:6px 0;border:none;}
+.msession a{border-bottom:none !important;padding:12px 0;}
+.msession .btn{margin-top:0 !important;}
 
 /* ── VOLVER ARRIBA ── */
 #toTop{position:fixed;right:26px;bottom:100px;z-index:85;width:46px;height:46px;border-radius:50%;background:#fff;color:var(--forest2);border:1px solid rgba(8,40,28,.1);box-shadow:var(--shadow-sm);font-size:20px;cursor:pointer;opacity:0;pointer-events:none;transition:.3s var(--ease);}
@@ -551,7 +555,7 @@ footer .fcol p{margin-bottom:4px;}
       <a href="#como">Cómo funciona</a>
       <a href="#tarifas">Tarifas</a>
       <a href="#llegar">Cómo llegar</a>
-      <a onclick="openOvl('ovlAdmin')" style="opacity:.6">Admin</a>
+      <a href="/panel" style="opacity:.6">Admin</a>
     </div>
     <div class="nav-cta" id="navCta">
       <a class="btn btn-glass" onclick="openOvl('ovlLogin')">Ingresar</a>
@@ -564,13 +568,16 @@ footer .fcol p{margin-bottom:4px;}
 <!-- MENÚ MOBILE -->
 <div class="mnav" id="mnav">
   <button class="mclose" onclick="toggleMnav()">×</button>
+  <div class="msession" id="mnavSession">
+    <a class="btn btn-glass" onclick="toggleMnav();openOvl('ovlLogin')">Ingresar</a>
+  </div>
   <a href="#reservar" onclick="toggleMnav()">Reservar</a>
   <a href="#zonas" onclick="toggleMnav()">Zonas</a>
   <a href="#servicios" onclick="toggleMnav()">Servicios</a>
   <a href="#como" onclick="toggleMnav()">Cómo funciona</a>
   <a href="#tarifas" onclick="toggleMnav()">Tarifas</a>
   <a href="#llegar" onclick="toggleMnav()">Cómo llegar</a>
-  <a onclick="toggleMnav();openOvl('ovlAdmin')">Admin</a>
+  <a href="/panel">Admin</a>
   <a class="btn btn-lime" onclick="toggleMnav();reserveCTA()">Reservar →</a>
 </div>
 
@@ -1307,6 +1314,10 @@ function doVerify(e){e.preventDefault();
 function finishReg(){setLogged(regName);closeOvls();location.hash='#reservar';}
 function setLogged(n){logged=true;
   document.getElementById('navCta').innerHTML='<a class="uchip" onclick="openMis()" style="cursor:pointer" title="Mis reservas">👤 '+n+'</a><a class="btn btn-lime" onclick="reserveCTA()">Reservar →</a>';
+  const ms=document.getElementById('mnavSession');
+  if(ms)ms.innerHTML='<div class="muser">👤 <b>'+n+'</b></div>'+
+    '<a onclick="toggleMnav();openMis()">📋 Mis reservas</a>'+
+    '<a onclick="logout()" style="color:#c0392b">Cerrar sesión</a>';
   const lh=document.getElementById('lockHint');if(lh){lh.innerHTML='✅ <span>¡Hola, '+n+'! Ya podés reservar.</span>';
     lh.style.background='rgba(46,157,99,.08)';lh.style.borderColor='#b6e3c8';lh.style.color='#1f7a48';}}
 
