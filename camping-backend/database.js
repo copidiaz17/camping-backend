@@ -18,8 +18,8 @@ const sequelize = new Sequelize(
     dialect: "mysql",
     logging: false,
     dialectOptions: isProduction
-      ? { ssl: { require: true, rejectUnauthorized: false }, connectTimeout: 30000 }
-      : { connectTimeout: 30000 },
+      ? { ssl: { require: true, rejectUnauthorized: false }, connectTimeout: 30000, charset: "utf8mb4" }
+      : { connectTimeout: 30000, charset: "utf8mb4" },
     pool: { max: 5, min: 0, acquire: 30000, idle: 10000 },
   }
 );

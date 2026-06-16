@@ -97,6 +97,13 @@ app.use("/api/puerta", puertaRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/reportes", reportesRoutes);
 
+// ── Handler global de errores para /api: nunca devolver HTML, siempre JSON con el motivo ──
+app.use("/api", (err, req, res, next) => {
+  console.error("🔥 Error no controlado en", req.method, req.originalUrl, "->", err?.stack || err);
+  if (res.headersSent) return next(err);
+  res.status(err?.status || 500).json({ message: "Error del servidor: " + (err?.message || "desconocido") });
+});
+
 // ── Frontends (monolito): el backend sirve la web pública y el panel interno ──
 const webDir = path.join(__dirname, "../camping-web");
 const panelDir = path.join(__dirname, "../camping-frontend/dist");
