@@ -1299,9 +1299,7 @@ async function doRegister(e){e.preventDefault();
       nombre, apellido:document.getElementById('rApellido').value.trim(),
       email:document.getElementById('rEmail').value.trim(), telefono:document.getElementById('rTel').value.trim(),
       password:document.getElementById('rPass').value});
-    saveSesion(d.token,d.cliente.nombre);regName=d.cliente.nombre;
-    document.getElementById('vDest').textContent=(document.getElementById('rTel').value||'').trim()||'tu WhatsApp';
-    openOvl('ovlVerify');}
+    saveSesion(d.token,d.cliente.nombre);setLogged(d.cliente.nombre);closeOvls();location.hash='#reservar';}
   catch(err){alert(err.message); if(/Ya hay una cuenta/i.test(err.message))openOvl('ovlLogin');}
   return false;}
 function doVerify(e){e.preventDefault();
