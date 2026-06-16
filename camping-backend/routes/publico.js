@@ -193,22 +193,43 @@ router.get("/mis-reservas", clienteAuth, async (req, res) => {
     where: { cliente_id: req.clienteId },
     include: [
       { model: Zona, as: "zona" },
+      { model: Quincho, as: "quincho" },
       { model: CodigoQR, as: "codigosQR" },
     ],
     order: [["id", "DESC"]],
     limit: 50,
   });
-  const salida = reservas.map((r) => ({
-    numero: r.numero,
-    tipo: r.tipo,
-    fecha: r.fecha,
-    cantidad_personas: r.cantidad_personas,
-    estado: r.estado,
-    estado_pago: r.estado_pago,
-    zona: r.zona ? { nombre: r.zona.nombre, color: r.zona.color } : null,
-    qr: r.codigosQR && r.codigosQR[0] ? r.codigosQR[0].token : null,
-  }));
+  const salida = reservas.map((r) => {
+    const qr = r.codigosQR && r.codigosQR[0] ? r.codigosQR[0] : null;
+    return {
+      id: r.id,
+      numero: r.numero,
+      tipo: r.tipo,
+      fecha: r.fecha,
+      cantidad_personas: r.cantidad_personas,
+      estado: r.estado,
+      estado_pago: r.estado_pago,
+      zona: r.zona ? { nombre: r.zona.nombre, color: r.zona.color } : null,
+      quincho: r.quincho ? r.quincho.nombre : null,
+      cupo: qr ? { total: qr.cupo_total, usado: qr.cupo_usado } : null,
+      qr: qr ? qr.token : null,
+    };
+  });
   res.json(salida);
+});
+
+// ── GET /api/publico/reservas/:id/estado ── (visitante logueado)
+// Liviano: el celular del visitante lo consulta para saber si el guardia ya escaneó su QR.
+router.get("/reservas/:id/estado", clienteAuth, async (req, res) => {
+  const reserva = await Reserva.findOne({
+    where: { id: req.params.id, cliente_id: req.clienteId },
+    include: [{ model: CodigoQR, as: "codigosQR" }],
+  });
+  if (!reserva) return res.status(404).json({ message: "Reserva no encontrada" });
+  const qr = reserva.codigosQR && reserva.codigosQR[0] ? reserva.codigosQR[0] : null;
+  const total = qr ? qr.cupo_total : 0;
+  const usado = qr ? qr.cupo_usado : 0;
+  res.json({ cupo: { total, usado, restante: total - usado } });
 });
 
 export default router;

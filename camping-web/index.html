@@ -528,6 +528,11 @@ footer .fcol p{margin-bottom:4px;}
 .misr .mi p{font-size:12.5px;color:rgba(255,255,255,.66);margin-top:2px;}
 .misr .pz{display:inline-block;margin-top:7px;font-size:11px;font-weight:700;color:#fff;padding:3px 11px;border-radius:14px;}
 .misr .qrhint{font-size:11px;color:rgba(255,255,255,.5);margin-top:6px;}
+.wok{font-size:54px;line-height:1;margin-bottom:6px;animation:pop .5s var(--ease);}
+@keyframes pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.wrecs{text-align:left;margin-top:10px;display:flex;flex-direction:column;gap:9px;}
+.wrecs .wr{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:11px 13px;font-size:13.5px;color:rgba(255,255,255,.9);}
+.wrecs .wr .ri{font-size:17px;flex-shrink:0;}
 
 @media(max-width:900px){
   .book-grid,.bento,.tl,.tarifas,.ia-feats,.foot-top,.kpis,.prow,.faq-grid,.llegar{grid-template-columns:1fr;}
@@ -1171,6 +1176,18 @@ footer .fcol p{margin-bottom:4px;}
     <h3 id="qrbTitle">Tu código QR</h3>
     <p id="qrbSub">Mostralo en la entrada del camping</p>
     <canvas id="qrbCanvas" width="300" height="300" style="background:#fff;border-radius:16px;padding:14px;max-width:100%;height:auto"></canvas>
+    <p id="qrbWait" style="margin-top:14px;font-size:12.5px;color:rgba(255,255,255,.55)">⏳ Esperando que el guardia escanee tu código…</p>
+  </div>
+</div>
+
+<!-- BIENVENIDA (al ser escaneado) -->
+<div class="ovl" id="ovlWelcome">
+  <div class="auth" style="text-align:center">
+    <div class="wok">🎉</div>
+    <h3 id="wTitle">¡Bienvenido/a!</h3>
+    <p id="wSub" style="margin-bottom:6px"></p>
+    <div class="wrecs" id="wRecs"></div>
+    <button class="btn btn-lime" onclick="closeOvls()" style="margin-top:18px">¡A disfrutar! 🌲</button>
   </div>
 </div>
 
@@ -1301,7 +1318,7 @@ let af=312;setInterval(()=>{af=Math.max(280,Math.min(420,af+Math.floor(Math.rand
 let logged=false, regName='';
 function openOvl(id){closeOvls();document.getElementById(id).classList.add('show');document.body.style.overflow='hidden';
   if(id==='ovlVerify'){document.getElementById('vStep1').style.display='block';document.getElementById('vStep2').style.display='none';}}
-function closeOvls(){document.querySelectorAll('.ovl').forEach(o=>o.classList.remove('show'));document.body.style.overflow='';}
+function closeOvls(){if(typeof stopWelcomePoll==='function')stopWelcomePoll();document.querySelectorAll('.ovl').forEach(o=>o.classList.remove('show'));document.body.style.overflow='';}
 // cerrar al click en el fondo
 document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeOvls();}));
 
@@ -1394,17 +1411,51 @@ async function openMis(){
     arr.forEach((r,i)=>{const col=r.zona?r.zona.color:'#888';const d=document.createElement('div');d.className='misr';
       d.innerHTML='<canvas width="76" height="76" id="mq'+i+'" style="cursor:zoom-in" title="Tocá para ampliar"></canvas><div class="mi"><b>'+r.numero+' · '+tipoLabel(r.tipo)+'</b><p>'+r.fecha+' · '+r.cantidad_personas+' personas · '+r.estado+'</p><span class="pz" style="background:'+col+'">🎟️ '+(r.zona?r.zona.nombre:'')+'</span><p class="qrhint">🔍 Tocá el QR para ampliarlo</p></div>';
       c.appendChild(d);
-      if(r.qr){realQR('mq'+i,r.qr);const cv=document.getElementById('mq'+i);
-        cv.onclick=()=>ampliarQR(r.qr,r.numero+' · '+tipoLabel(r.tipo),(r.zona?'Pulsera '+r.zona.nombre+' · ':'')+r.fecha+' · '+r.cantidad_personas+' personas');}});
+      if(r.qr){realQR('mq'+i,r.qr);const cv=document.getElementById('mq'+i);cv.onclick=()=>ampliarQR(r);}});
   }catch(err){c.innerHTML='<p style="color:#f9b;text-align:center;padding:24px">'+err.message+'</p>';}
 }
 
-// Amplía un QR en pantalla completa
-function ampliarQR(token,titulo,sub){
+// Amplía un QR en pantalla completa y escucha si el guardia lo escanea
+let welcomePoll=null;
+function stopWelcomePoll(){if(welcomePoll){clearInterval(welcomePoll);welcomePoll=null;}}
+function ampliarQR(r){
   openOvl('ovlQRBig');
-  document.getElementById('qrbTitle').textContent=titulo||'Tu código QR';
-  document.getElementById('qrbSub').textContent=sub||'Mostralo en la entrada del camping';
-  realQR('qrbCanvas',token);
+  document.getElementById('qrbTitle').textContent=r.numero+' · '+tipoLabel(r.tipo);
+  document.getElementById('qrbSub').textContent=(r.zona?'Pulsera '+r.zona.nombre+' · ':'')+r.fecha+' · '+r.cantidad_personas+' personas';
+  realQR('qrbCanvas',r.qr);
+  startWelcomePoll(r);
+}
+// Consulta cada 3s si el guardia ya escaneó el QR → muestra la bienvenida
+function startWelcomePoll(r){
+  stopWelcomePoll();
+  if(!r.id)return;
+  const base=r.cupo?r.cupo.usado:0;
+  welcomePoll=setInterval(async()=>{
+    try{const st=await apiGet('/api/publico/reservas/'+r.id+'/estado',true);
+      if(st.cupo&&st.cupo.usado>base){stopWelcomePoll();showWelcome(r);}
+    }catch(e){}
+  },3000);
+}
+function showWelcome(r){
+  const nombre=(localStorage.getItem(TOKN)||'').split(' ')[0]||'';
+  const zona=r.zona?r.zona.nombre:'';
+  document.getElementById('wTitle').textContent='¡Bienvenido/a'+(nombre?', '+nombre:'')+'! 🎉';
+  let sub;
+  if(r.tipo==='quincho')sub='Reservaste el '+(r.quincho||'quincho')+' para '+r.cantidad_personas+' personas. ¡Que lo disfruten!';
+  else if(zona==='Pileta')sub='Tu pase de pileta está activo. Tené en cuenta estas recomendaciones para pasar un día inolvidable:';
+  else if(zona==='Acampe')sub='Tu lugar de acampe te espera. Para una estadía perfecta:';
+  else sub='¡Ya estás dentro del camping! Algunas recomendaciones:';
+  document.getElementById('wSub').textContent=sub;
+  const recs=recomendaciones(zona);
+  document.getElementById('wRecs').innerHTML=recs.map(x=>'<div class="wr"><span class="ri">'+x[0]+'</span><span>'+x[1]+'</span></div>').join('');
+  openOvl('ovlWelcome');
+}
+function recomendaciones(zona){
+  const comun=[['🎟️','Conservá tu pulsera puesta durante toda la jornada.'],['🧹','Dejá tu lugar limpio: cuidemos el camping entre todos.']];
+  if(zona==='Pileta')return [['🛟','Respetá siempre las indicaciones del guardavidas.'],['💧','Cuidado con el piso mojado: no corras alrededor de la pileta.'],['🥤','No se permite ingresar con vidrios a la zona de pileta.'],['🕘','La pileta funciona de 10 a 20 hs.'],...comun];
+  if(zona==='Quincho')return [['🔥','Encendé fuego solo en la parrilla del quincho.'],['🎵','Música a volumen moderado, respetando a los demás.'],['🌿','Apagá bien las brasas antes de retirarte.'],...comun];
+  if(zona==='Acampe')return [['⛺','Armá la carpa en el sector de acampe asignado.'],['🔥','Fuego solo en fogones habilitados.'],['🌙','Respetá el silencio nocturno.'],...comun];
+  return comun;
 }
 
 // ── auto-login si hay sesión guardada ──
