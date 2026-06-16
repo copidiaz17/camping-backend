@@ -13,11 +13,6 @@
           <button class="flex-1" :class="modo === 'manual' ? 'btn-primary' : 'btn-ghost'" @click="setModo('manual')">⌨️ Manual</button>
         </div>
 
-        <div class="mb-4">
-          <label class="label">¿Cuántas personas ingresan?</label>
-          <input v-model.number="cantidad" type="number" min="1" class="input w-28" />
-        </div>
-
         <!-- Cámara -->
         <div v-show="modo === 'camara'">
           <div id="reader" class="rounded-lg overflow-hidden bg-black/5 min-h-[260px]"></div>
@@ -30,16 +25,54 @@
             <label class="label">Token del QR</label>
             <input v-model="tokenManual" class="input font-mono" placeholder="Pegá o escribí el token…" @keyup.enter="validarManual" />
           </div>
-          <button class="btn-primary w-full" :disabled="validando" @click="validarManual">Validar ingreso</button>
+          <button class="btn-primary w-full" :disabled="validando" @click="validarManual">Buscar reserva</button>
         </div>
       </div>
 
-      <!-- Resultado -->
+      <!-- Resultado / Confirmación -->
       <div>
-        <div v-if="!resultado" class="card h-full flex items-center justify-center text-gray-400 text-center min-h-[300px]">
+        <!-- Esperando -->
+        <div v-if="!preview && !resultado" class="card h-full flex items-center justify-center text-gray-400 text-center min-h-[300px]">
           Esperando escaneo…
         </div>
 
+        <!-- Paso 2: el QR se escaneó → cargar cuántos entran -->
+        <div v-else-if="preview && !resultado" class="card h-full min-h-[300px] flex flex-col">
+          <div class="text-center">
+            <div class="inline-flex items-center gap-2 text-lg font-semibold px-4 py-2 rounded-full text-white"
+                 :style="{ background: preview.pulsera?.color || '#888' }">
+              Pulsera {{ preview.pulsera?.zona }}
+            </div>
+            <div class="mt-3 text-gray-700">
+              <div class="font-semibold">{{ preview.reserva?.numero }} · {{ preview.reserva?.cliente }}</div>
+              <div class="text-sm text-gray-500">{{ tipoLabel(preview.reserva?.tipo) }} · {{ preview.reserva?.fecha }}</div>
+            </div>
+            <div class="mt-3 text-sm text-gray-600">
+              Quedan <b class="text-monte-600 text-lg">{{ preview.cupo?.restante }}</b> de {{ preview.cupo?.total }} lugares
+            </div>
+          </div>
+
+          <!-- Cargar cantidad -->
+          <div v-if="preview.cupo?.restante > 0" class="mt-5 border-t pt-4">
+            <label class="label">¿Cuántas personas ingresan ahora?</label>
+            <div class="flex items-center justify-center gap-3 mt-2">
+              <button class="btn-ghost text-2xl px-4" @click="cantidad = Math.max(1, cantidad - 1)">−</button>
+              <input v-model.number="cantidad" type="number" min="1" :max="preview.cupo.restante"
+                     class="input text-center text-2xl font-bold w-24" />
+              <button class="btn-ghost text-2xl px-4" @click="cantidad = Math.min(preview.cupo.restante, cantidad + 1)">＋</button>
+            </div>
+            <button class="btn-primary w-full mt-4" :disabled="validando" @click="confirmar">
+              Confirmar ingreso de {{ cantidad }} {{ cantidad === 1 ? "persona" : "personas" }} →
+            </button>
+            <button class="btn-ghost w-full mt-2" @click="reiniciar">Cancelar</button>
+          </div>
+          <div v-else class="mt-5 border-t pt-4 text-center">
+            <div class="text-red-600 font-semibold">🚫 Cupo agotado — no quedan lugares</div>
+            <button class="btn-ghost w-full mt-3" @click="reiniciar">Escanear otro</button>
+          </div>
+        </div>
+
+        <!-- Paso 3: resultado final -->
         <div v-else class="card h-full min-h-[300px] flex flex-col items-center justify-center text-center"
              :class="resultado.ok ? 'border-2 border-monte-500' : 'border-2 border-red-400'">
           <div class="text-6xl mb-3">{{ resultado.ok ? "✅" : "🚫" }}</div>
@@ -75,28 +108,59 @@ import { axios, auth } from "../utils/api.js";
 const modo = ref("camara");
 const cantidad = ref(1);
 const tokenManual = ref("");
-const resultado = ref(null);
+const preview = ref(null); // datos del QR escaneado (paso 2)
+const resultado = ref(null); // resultado final del ingreso (paso 3)
 const validando = ref(false);
 const camError = ref("");
+let tokenActual = ""; // token del QR en curso
 
 let scanner = null;
 let bloqueado = false; // evita disparos múltiples por frame
 
-async function escanear(token) {
+const TIPOS = { quincho: "Quincho", pase_pileta: "Pase pileta", pase_dia: "Pase día", acampe: "Acampe" };
+function tipoLabel(t) {
+  return TIPOS[t] || t || "";
+}
+
+// Paso 1: escaneó/ingresó un token → consultar el QR (NO registra todavía)
+async function consultar(token) {
   if (!token) return;
+  tokenActual = token;
+  validando.value = true;
+  resultado.value = null;
+  try {
+    const { data } = await axios.get("/api/qr/" + encodeURIComponent(token), auth());
+    preview.value = data;
+    cantidad.value = data.cupo?.restante > 0 ? data.cupo.restante : 1;
+  } catch (e) {
+    resultado.value = { ok: false, message: "❌ " + (e?.response?.data?.message || "QR inválido o inexistente") };
+    preview.value = null;
+  } finally {
+    validando.value = false;
+  }
+}
+
+// Paso 2: confirmar → registra el ingreso y descuenta el cupo
+async function confirmar() {
   validando.value = true;
   try {
-    const { data } = await axios.post("/api/ingresos/escanear", { token, cantidad_personas: cantidad.value }, auth());
+    const { data } = await axios.post(
+      "/api/ingresos/escanear",
+      { token: tokenActual, cantidad_personas: cantidad.value },
+      auth()
+    );
     resultado.value = data;
+    preview.value = null;
   } catch (e) {
     resultado.value = e?.response?.data || { ok: false, message: "Error al validar" };
+    preview.value = null;
   } finally {
     validando.value = false;
   }
 }
 
 function validarManual() {
-  escanear(tokenManual.value.trim());
+  consultar(tokenManual.value.trim());
 }
 
 async function setModo(m) {
@@ -119,7 +183,7 @@ async function startCam() {
         if (bloqueado) return;
         bloqueado = true;
         await stopCam();
-        await escanear(texto.trim());
+        await consultar(texto.trim());
       }
     );
   } catch (e) {
@@ -139,6 +203,8 @@ async function stopCam() {
 
 async function reiniciar() {
   resultado.value = null;
+  preview.value = null;
+  tokenActual = "";
   tokenManual.value = "";
   bloqueado = false;
   if (modo.value === "camara") {
