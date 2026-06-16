@@ -59,12 +59,18 @@ app.use(
 );
 
 app.use(express.json({ limit: "10mb" }));
-app.use(rateLimit({ windowMs: 60 * 1000, max: 120 }));
+app.use(rateLimit({
+  windowMs: 60 * 1000,
+  max: 300, // generoso: una demo con varias personas en la misma WiFi comparte IP
+  message: { message: "Muchas solicitudes seguidas. Esperá unos segundos e intentá de nuevo." },
+  standardHeaders: true,
+  legacyHeaders: false,
+}));
 
-// Límite estricto contra fuerza bruta en login/registro (20 intentos por 15 min)
+// Límite estricto contra fuerza bruta en login/registro (60 intentos por 15 min)
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: 60, // varias personas registrándose desde la misma red comparten IP
   message: { message: "Demasiados intentos. Esperá unos minutos e intentá de nuevo." },
   standardHeaders: true,
   legacyHeaders: false,
