@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Sistema de gestión Camping Las Casuarinas — backend + web pública + panel interno (monolito para Render)",
   "scripts": {
-    "build": "npm install --prefix camping-backend && npm install --prefix camping-frontend && npm run build --prefix camping-frontend",
+    "build": "npm install --prefix camping-backend && npm install --prefix camping-frontend --include=dev && npm run build --prefix camping-frontend",
     "start": "node camping-backend/server.js"
   }
 }
