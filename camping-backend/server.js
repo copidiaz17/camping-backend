@@ -49,10 +49,11 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin) return cb(null, true);
-      if (/^http:\/\/localhost:\d+$/.test(origin)) return cb(null, true);
+      if (!origin) return cb(null, true); // curl / health / server-to-server
+      if (/^http:\/\/localhost:\d+$/.test(origin)) return cb(null, true); // dev
       if (origin === FRONTEND_URL) return cb(null, true);
-      return cb(new Error(`CORS bloqueado para origin: ${origin}`));
+      if (/^https:\/\/[a-z0-9-]+\.onrender\.com$/i.test(origin)) return cb(null, true); // monolito en prod (web y API mismo dominio)
+      return cb(null, false); // resto: sin headers CORS, pero NUNCA tirar 500
     },
     credentials: true,
   })
