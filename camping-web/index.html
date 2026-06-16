@@ -527,6 +527,7 @@ footer .fcol p{margin-bottom:4px;}
 .misr .mi b{font-size:15px;}
 .misr .mi p{font-size:12.5px;color:rgba(255,255,255,.66);margin-top:2px;}
 .misr .pz{display:inline-block;margin-top:7px;font-size:11px;font-weight:700;color:#fff;padding:3px 11px;border-radius:14px;}
+.misr .qrhint{font-size:11px;color:rgba(255,255,255,.5);margin-top:6px;}
 
 @media(max-width:900px){
   .book-grid,.bento,.tl,.tarifas,.ia-feats,.foot-top,.kpis,.prow,.faq-grid,.llegar{grid-template-columns:1fr;}
@@ -1162,6 +1163,17 @@ footer .fcol p{margin-bottom:4px;}
   </div>
 </div>
 
+<!-- QR AMPLIADO -->
+<div class="ovl" id="ovlQRBig">
+  <div class="auth" style="text-align:center">
+    <button class="back" onclick="openMis()">← Mis reservas</button>
+    <div class="llogo">🎟️</div>
+    <h3 id="qrbTitle">Tu código QR</h3>
+    <p id="qrbSub">Mostralo en la entrada del camping</p>
+    <canvas id="qrbCanvas" width="300" height="300" style="background:#fff;border-radius:16px;padding:14px;max-width:100%;height:auto"></canvas>
+  </div>
+</div>
+
 <!-- VOLVER ARRIBA -->
 <button id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Volver arriba">↑</button>
 
@@ -1380,9 +1392,19 @@ async function openMis(){
     if(!arr.length){c.innerHTML='<p style="color:rgba(255,255,255,.6);text-align:center;padding:24px">Todavía no tenés reservas. ¡Hacé la primera!</p>';return;}
     c.innerHTML='';
     arr.forEach((r,i)=>{const col=r.zona?r.zona.color:'#888';const d=document.createElement('div');d.className='misr';
-      d.innerHTML='<canvas width="76" height="76" id="mq'+i+'"></canvas><div class="mi"><b>'+r.numero+' · '+tipoLabel(r.tipo)+'</b><p>'+r.fecha+' · '+r.cantidad_personas+' personas · '+r.estado+'</p><span class="pz" style="background:'+col+'">🎟️ '+(r.zona?r.zona.nombre:'')+'</span></div>';
-      c.appendChild(d);if(r.qr)realQR('mq'+i,r.qr);});
+      d.innerHTML='<canvas width="76" height="76" id="mq'+i+'" style="cursor:zoom-in" title="Tocá para ampliar"></canvas><div class="mi"><b>'+r.numero+' · '+tipoLabel(r.tipo)+'</b><p>'+r.fecha+' · '+r.cantidad_personas+' personas · '+r.estado+'</p><span class="pz" style="background:'+col+'">🎟️ '+(r.zona?r.zona.nombre:'')+'</span><p class="qrhint">🔍 Tocá el QR para ampliarlo</p></div>';
+      c.appendChild(d);
+      if(r.qr){realQR('mq'+i,r.qr);const cv=document.getElementById('mq'+i);
+        cv.onclick=()=>ampliarQR(r.qr,r.numero+' · '+tipoLabel(r.tipo),(r.zona?'Pulsera '+r.zona.nombre+' · ':'')+r.fecha+' · '+r.cantidad_personas+' personas');}});
   }catch(err){c.innerHTML='<p style="color:#f9b;text-align:center;padding:24px">'+err.message+'</p>';}
+}
+
+// Amplía un QR en pantalla completa
+function ampliarQR(token,titulo,sub){
+  openOvl('ovlQRBig');
+  document.getElementById('qrbTitle').textContent=titulo||'Tu código QR';
+  document.getElementById('qrbSub').textContent=sub||'Mostralo en la entrada del camping';
+  realQR('qrbCanvas',token);
 }
 
 // ── auto-login si hay sesión guardada ──
