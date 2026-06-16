@@ -10,6 +10,7 @@ import Quincho from "../models/Quincho.js";
 import Tarifa from "../models/Tarifa.js";
 import CodigoQR from "../models/CodigoQR.js";
 import { ZONA_POR_TIPO, fechaEsPasada, siguienteNumero, quinchosLibres, quinchoEstaLibre, aforoUsado, generarQR } from "../utils/reservas.js";
+import { enviarQRReserva } from "../utils/mailer.js";
 
 const router = express.Router();
 
@@ -170,6 +171,14 @@ router.post("/reservas/:id/pagar", clienteAuth, async (req, res) => {
     // 👉 Acá iría la confirmación real de MercadoPago. Por ahora se simula aprobado.
     await reserva.update({ estado_pago: "pagado", estado: "confirmada" });
     const qr = await generarQR(reserva);
+
+    // Enviar el QR por email (fire-and-forget: no bloquea ni rompe la respuesta del pago)
+    Cliente.findByPk(req.clienteId)
+      .then(async (cliente) => {
+        const zona = await Zona.findByPk(reserva.zona_id);
+        return enviarQRReserva({ email: cliente?.email, nombre: cliente?.nombre, reserva, zona, qrToken: qr.token });
+      })
+      .catch((e) => console.error("[mail] no se pudo enviar el QR:", e.message));
 
     res.json({ ok: true, reserva, qr: { token: qr.token, cupo_total: qr.cupo_total } });
   } catch (err) {
