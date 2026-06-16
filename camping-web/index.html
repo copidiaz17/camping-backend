@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Camping Las Casuarinas — Reservá tu día al aire libre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#06241a; --forest2:#0b3d2c; --teal:#0e7c66; --teal2:#0e8a6e;
+  --lime:#86ecae; --mint:#c8f7da; --sun:#ffd27d;
+  --sand:#f6f4ec; --paper:#fffdf8; --ink:#10201a; --muted:#5e7068;
+  --rojo:#e23b3b; --verde:#2e9d63; --azul:#2b86c5;
+  --r:22px; --rs:14px;
+  --shadow:0 18px 50px rgba(8,40,28,.14); --shadow-sm:0 8px 24px rgba(8,40,28,.08);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+body{font-family:'Outfit','Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--sand);line-height:1.6;overflow-x:hidden;}
+img{max-width:100%;display:block;}
+a{text-decoration:none;color:inherit;}
+::selection{background:var(--lime);color:var(--forest);}
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px;}
+.serif{font-family:'Fraunces',Georgia,serif;font-weight:500;}
+.italic{font-style:italic;}
+
+/* grain overlay */
+body::before{content:'';position:fixed;inset:0;z-index:2000;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* scroll progress */
+#prog{position:fixed;top:0;left:0;height:3px;width:0;z-index:120;
+  background:linear-gradient(90deg,var(--teal),var(--lime));box-shadow:0 0 12px rgba(134,236,174,.7);transition:width .1s linear;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:all .4s var(--ease);}
+nav .bar{display:flex;align-items:center;justify-content:space-between;height:74px;margin:0 auto;max-width:1180px;padding:0 26px;
+  transition:all .4s var(--ease);}
+nav.scrolled{padding-top:10px;}
+nav.scrolled .bar{height:58px;background:rgba(6,36,26,.82);backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);border:1px solid rgba(255,255,255,.1);border-radius:40px;
+  box-shadow:0 12px 40px rgba(0,0,0,.28);max-width:1100px;}
+.logo{color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;gap:10px;letter-spacing:.2px;}
+.logo img{height:36px;width:auto;transition:.4s var(--ease);}
+nav.scrolled .logo img{height:30px;}
+.menu{display:flex;gap:6px;align-items:center;}
+.menu a{color:rgba(255,255,255,.82);font-size:14.5px;font-weight:500;padding:9px 15px;border-radius:30px;position:relative;transition:.25s;}
+.menu a::after{content:'';position:absolute;left:15px;right:15px;bottom:6px;height:2px;background:var(--lime);
+  transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease);border-radius:2px;}
+.menu a:hover{color:#fff;}.menu a:hover::after{transform:scaleX(1);}
+.nav-cta{display:flex;align-items:center;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;font-family:inherit;font-weight:700;
+  border-radius:40px;transition:transform .25s var(--ease),box-shadow .25s,background .25s;position:relative;}
+.btn:active{transform:scale(.96);}
+.btn-lime{background:linear-gradient(135deg,var(--lime),#b6f3cf);color:var(--forest);padding:11px 22px;font-size:14.5px;
+  box-shadow:0 8px 22px rgba(134,236,174,.4);}
+.btn-lime:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(134,236,174,.55);}
+.btn-glass{background:rgba(255,255,255,.1);color:#fff;padding:11px 20px;font-size:14px;border:1px solid rgba(255,255,255,.28);
+  backdrop-filter:blur(6px);}
+.btn-glass:hover{background:rgba(255,255,255,.2);transform:translateY(-2px);}
+.btn-big{background:linear-gradient(135deg,var(--lime),#b6f3cf);color:var(--forest);padding:16px 34px;font-size:16.5px;
+  box-shadow:0 12px 30px rgba(134,236,174,.45);font-weight:800;}
+.btn-big:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 20px 44px rgba(134,236,174,.6);}
+.btn-dark{background:var(--forest2);color:#fff;padding:15px 30px;font-size:15.5px;}
+.btn-dark:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
+
+/* ── HERO ── */
+header{min-height:100vh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;
+  background:radial-gradient(120% 120% at 80% 0%,#0e5a43 0%,#0b3d2c 42%,#072a1e 100%);color:#fff;padding:130px 0 60px;}
+/* aurora blobs */
+.aurora{position:absolute;border-radius:50%;filter:blur(90px);will-change:transform;}
+.a1{width:560px;height:560px;background:#0e8a6e;top:-180px;right:-120px;opacity:.55;animation:drift1 18s var(--ease) infinite alternate;}
+.a2{width:480px;height:480px;background:#86ecae;bottom:-220px;left:-150px;opacity:.28;animation:drift2 22s var(--ease) infinite alternate;}
+.a3{width:340px;height:340px;background:#ffd27d;top:30%;left:40%;opacity:.14;animation:drift3 26s var(--ease) infinite alternate;}
+@keyframes drift1{to{transform:translate(-80px,60px) scale(1.15);}}
+@keyframes drift2{to{transform:translate(90px,-50px) scale(1.1);}}
+@keyframes drift3{to{transform:translate(-120px,80px) scale(1.2);}}
+.hero{display:flex;align-items:center;gap:50px;position:relative;z-index:3;flex-wrap:wrap;}
+.hero-txt{flex:1.3;min-width:320px;}
+.kicker{display:inline-flex;align-items:center;gap:9px;background:rgba(134,236,174,.12);border:1px solid rgba(134,236,174,.34);
+  color:var(--lime);font-size:12.5px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;
+  padding:8px 17px;border-radius:30px;margin-bottom:26px;opacity:0;animation:rise .8s var(--ease) .1s forwards;}
+.kicker .led{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(134,236,174,.7);animation:pul 1.8s infinite;}
+h1{font-size:clamp(40px,6vw,72px);line-height:1.02;font-weight:800;letter-spacing:-1.5px;margin-bottom:22px;}
+h1 .ln{display:block;overflow:hidden;}
+h1 .ln>span{display:inline-block;transform:translateY(110%);animation:lnup .9s var(--ease) forwards;}
+h1 .ln:nth-child(1)>span{animation-delay:.15s;}
+h1 .ln:nth-child(2)>span{animation-delay:.28s;}
+h1 .ln:nth-child(3)>span{animation-delay:.41s;}
+.grad{background:linear-gradient(100deg,var(--lime),var(--sun) 90%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+@keyframes lnup{to{transform:none;}}
+.hero-sub{font-size:19px;color:rgba(255,255,255,.8);max-width:540px;margin-bottom:34px;opacity:0;animation:rise .8s var(--ease) .55s forwards;}
+.hero-sub b{color:#fff;font-weight:600;}
+.hero-ctas{display:flex;gap:15px;flex-wrap:wrap;opacity:0;animation:rise .8s var(--ease) .7s forwards;}
+@keyframes rise{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
+@keyframes pul{0%{box-shadow:0 0 0 0 rgba(134,236,174,.7);}70%{box-shadow:0 0 0 10px rgba(134,236,174,0);}100%{box-shadow:0 0 0 0 rgba(134,236,174,0);}}
+
+/* phone */
+.hero-phone{flex:.9;min-width:270px;display:flex;justify-content:center;opacity:0;animation:rise 1s var(--ease) .6s forwards;}
+.phone{width:266px;background:linear-gradient(160deg,#161c22,#0d1217);border-radius:42px;padding:14px;border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 40px 90px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);will-change:transform;}
+.phone-float{animation:float 6s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-2.5deg);}50%{transform:translateY(-18px) rotate(-2.5deg);}}
+.notch{width:70px;height:6px;background:#2a323b;border-radius:6px;margin:3px auto 12px;}
+.pscreen{background:linear-gradient(170deg,#f8faf8,#eef5f0);border-radius:30px;overflow:hidden;}
+.pbar{background:linear-gradient(135deg,var(--forest2),var(--teal));color:#fff;text-align:center;font-size:13px;font-weight:700;padding:11px;letter-spacing:.3px;}
+.pbody{padding:18px 16px;text-align:center;}
+.pok{display:inline-flex;align-items:center;gap:6px;color:var(--verde);font-weight:800;font-size:13px;margin-bottom:12px;
+  background:#e7f7ee;padding:5px 14px;border-radius:20px;}
+.pqr{width:140px;height:140px;margin:0 auto 12px;border-radius:14px;border:1px solid #e2e6e3;box-shadow:0 6px 18px rgba(0,0,0,.08);}
+.pinfo{font-size:12.5px;color:#445;line-height:1.55;}
+.pinfo b{color:var(--forest2);}
+.ptag{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#fdecec;color:var(--rojo);font-size:11.5px;font-weight:700;
+  padding:5px 14px;border-radius:20px;}
+
+/* stats */
+.stats{position:relative;z-index:3;margin-top:60px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:18px;padding:18px 20px;
+  backdrop-filter:blur(10px);opacity:0;transition:.7s var(--ease);}
+.stat.in{opacity:1;}
+.stat .lbl{font-size:11.5px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.stat .val{font-size:25px;font-weight:800;display:flex;align-items:center;gap:9px;letter-spacing:-.5px;}
+.scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3;color:rgba(255,255,255,.5);
+  font-size:12px;display:flex;flex-direction:column;align-items:center;gap:7px;letter-spacing:1px;}
+.scroll-cue .ms{width:24px;height:38px;border:2px solid rgba(255,255,255,.35);border-radius:14px;position:relative;}
+.scroll-cue .ms::after{content:'';position:absolute;top:7px;left:50%;width:4px;height:7px;background:var(--lime);border-radius:3px;
+  transform:translateX(-50%);animation:wheel 1.6s var(--ease) infinite;}
+@keyframes wheel{0%{opacity:0;top:6px;}30%{opacity:1;}60%{opacity:1;}100%{opacity:0;top:18px;}}
+
+/* ── TICKER ── */
+.ticker{background:var(--forest);color:rgba(255,255,255,.85);padding:16px 0;overflow:hidden;white-space:nowrap;border-top:1px solid rgba(255,255,255,.07);}
+.ticker-track{display:inline-flex;gap:42px;animation:scrollx 28s linear infinite;}
+.ticker-track span{font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:12px;}
+.ticker-track .d{color:var(--lime);}
+@keyframes scrollx{to{transform:translateX(-50%);}}
+
+/* ── SECCIONES ── */
+section{padding:96px 0;position:relative;}
+.sec-head{max-width:680px;margin-bottom:50px;}
+.sec-k{display:inline-flex;align-items:center;gap:8px;color:var(--teal);font-weight:700;font-size:13px;text-transform:uppercase;
+  letter-spacing:2px;margin-bottom:14px;}
+.sec-k::before{content:'';width:26px;height:2px;background:var(--teal);border-radius:2px;}
+h2{font-size:clamp(30px,4.2vw,46px);font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:14px;}
+.sec-sub{color:var(--muted);font-size:17px;max-width:620px;}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:calc(var(--i,0)*.09s);}
+.reveal.in{opacity:1;transform:none;}
+
+/* image placeholder */
+.ph{position:relative;overflow:hidden;background:linear-gradient(135deg,#dfe9e2,#eef3ee);display:flex;align-items:center;justify-content:center;}
+.ph::after{content:'';position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(110deg,transparent 25%,rgba(255,255,255,.45) 50%,transparent 75%);animation:shimmer 2.8s infinite;}
+@keyframes shimmer{to{transform:translateX(100%);}}
+.ph-lbl{position:relative;z-index:1;color:#7d958a;font-size:12.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
+.ph-lbl .ico{font-size:24px;opacity:.6;}
+
+/* ── BOOKING ── */
+.book-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:stretch;}
+.booking{background:var(--paper);border-radius:var(--r);box-shadow:var(--shadow);padding:34px;border:1px solid rgba(8,40,28,.05);}
+.steps{display:flex;gap:8px;margin-bottom:28px;}
+.stp{flex:1;font-size:12.5px;font-weight:600;color:var(--muted);padding-bottom:12px;border-bottom:3px solid #e7e4da;transition:.4s var(--ease);display:flex;align-items:center;gap:7px;}
+.stp .n{width:22px;height:22px;border-radius:50%;background:#e7e4da;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.4s var(--ease);flex-shrink:0;}
+.stp.on{color:var(--forest);border-color:var(--lime);}
+.stp.on .n{background:var(--teal);}
+.stp.done .n{background:var(--verde);}
+.pane{display:none;animation:paneIn .5s var(--ease);}
+.pane.show{display:block;}
+@keyframes paneIn{from{opacity:0;transform:translateX(22px);}to{opacity:1;transform:none;}}
+.tipos{display:flex;flex-direction:column;gap:12px;}
+.tipo{display:flex;align-items:center;gap:16px;border:2px solid #e7e4da;border-radius:18px;padding:16px 18px;cursor:pointer;
+  text-align:left;transition:.25s var(--ease);background:#fff;font-family:inherit;width:100%;}
+.tipo:hover{transform:translateX(4px);border-color:#cfd8d1;}
+.tipo.sel{border-color:var(--teal);background:linear-gradient(120deg,#eefaf4,#fff);box-shadow:0 8px 20px rgba(14,124,102,.1);}
+.tipo .tico{width:50px;height:50px;border-radius:14px;background:#f1f6f2;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;transition:.25s;}
+.tipo.sel .tico{background:var(--teal);}
+.tipo .tt{font-weight:700;font-size:15.5px;}
+.tipo .td{font-size:12.5px;color:var(--muted);}
+.tipo .chip{margin-left:auto;font-size:11px;font-weight:700;color:#fff;padding:5px 13px;border-radius:20px;white-space:nowrap;}
+.tipo .rad{width:22px;height:22px;border-radius:50%;border:2px solid #d4ddd6;flex-shrink:0;position:relative;transition:.25s;}
+.tipo.sel .rad{border-color:var(--teal);}
+.tipo.sel .rad::after{content:'';position:absolute;inset:4px;border-radius:50%;background:var(--teal);}
+.reg-tip{background:linear-gradient(120deg,#fff7e0,#fffdf5);border:1px solid #f1dfa8;border-radius:14px;padding:12px 16px;
+  font-size:13px;color:#7a5e1e;margin-bottom:18px;display:flex;gap:10px;align-items:flex-start;}
+.frm{display:flex;gap:18px;flex-wrap:wrap;}
+.fld{flex:1;min-width:200px;}
+.fld label{font-size:13px;font-weight:600;color:var(--muted);display:block;margin-bottom:8px;}
+.fld input[type=date]{width:100%;padding:14px;border:2px solid #e7e4da;border-radius:14px;font-family:inherit;font-size:15px;transition:.2s;}
+.fld input:focus{outline:none;border-color:var(--teal);}
+.stepper{display:flex;align-items:center;border:2px solid #e7e4da;border-radius:14px;overflow:hidden;}
+.stepper button{width:54px;height:52px;border:none;background:#f1eee4;font-size:22px;cursor:pointer;font-family:inherit;color:var(--forest);font-weight:700;transition:.2s;}
+.stepper button:hover{background:var(--lime);}
+.stepper span{flex:1;text-align:center;font-size:19px;font-weight:800;}
+.bk-actions{margin-top:28px;display:flex;gap:12px;justify-content:flex-end;}
+.btn-back{background:#efece2;color:var(--ink);padding:14px 24px;font-size:15px;}
+.btn-back:hover{background:#e4e0d4;}
+.btn-next{background:var(--forest2);color:#fff;padding:14px 30px;font-size:15px;}
+.btn-next:hover{transform:translateY(-3px);box-shadow:var(--shadow-sm);}
+.qr-out{text-align:center;padding:6px 0;}
+.qr-pop{animation:pop .6s var(--ease);}
+@keyframes pop{0%{transform:scale(.7);opacity:0;}60%{transform:scale(1.05);}100%{transform:scale(1);opacity:1;}}
+.qr-out canvas{border-radius:14px;border:1px solid #e2e6e3;box-shadow:0 10px 26px rgba(0,0,0,.1);}
+.qr-res{margin:16px auto 4px;background:linear-gradient(120deg,#eefaf4,#fff);border:1px solid #cdeedd;border-radius:16px;
+  padding:14px 20px;font-size:14px;max-width:420px;text-align:left;}
+.cupo-bar{height:10px;background:#e7e4da;border-radius:8px;overflow:hidden;margin-top:10px;}
+.cupo-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--lime));border-radius:8px;transition:width 1s var(--ease);}
+.qr-note{font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;}
+.qr-note b{color:#1f8a4d;}
+.pago-res{background:linear-gradient(120deg,#eefaf4,#fff);border:1px solid #cdeedd;border-radius:16px;padding:18px 22px;}
+.pago-row{display:flex;justify-content:space-between;padding:7px 0;font-size:14.5px;color:#445;}
+.pago-row b{color:var(--ink);}
+.pago-row.total{border-top:1px solid #cdeedd;margin-top:6px;padding-top:13px;font-size:17px;}
+.pago-row.total b{color:var(--teal);font-weight:800;}
+/* aside booking visual */
+.book-aside{border-radius:var(--r);overflow:hidden;position:relative;box-shadow:var(--shadow);min-height:440px;
+  background:radial-gradient(120% 100% at 0% 0%,#0e5a43,#072a1e);color:#fff;padding:32px;display:flex;flex-direction:column;justify-content:flex-end;}
+.book-aside .ph-bg{position:absolute;inset:0;z-index:0;}
+.book-aside .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,42,30,.2),rgba(7,42,30,.92));z-index:1;}
+.book-aside .ac{position:relative;z-index:2;}
+.book-aside h3{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:10px;}
+.book-aside p{font-size:14.5px;color:rgba(255,255,255,.78);}
+.ba-feats{margin-top:18px;display:flex;flex-direction:column;gap:11px;}
+.ba-feats div{display:flex;align-items:center;gap:11px;font-size:14px;color:rgba(255,255,255,.9);}
+.ba-feats .ck{width:26px;height:26px;border-radius:50%;background:rgba(134,236,174,.2);color:var(--lime);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+
+/* ── ZONAS (bento) ── */
+.bento{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.zona{background:var(--paper);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);border:1px solid rgba(8,40,28,.05);
+  transition:transform .35s var(--ease),box-shadow .35s var(--ease);cursor:default;}
+.zona:hover{transform:translateY(-8px);box-shadow:var(--shadow);}
+.zhead{height:190px;position:relative;overflow:hidden;}
+.zhead .ph{position:absolute;inset:0;}
+.zhead .badge{position:absolute;top:14px;left:14px;z-index:2;display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(6px);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.12);}
+.zhead .zico{position:absolute;right:16px;bottom:14px;z-index:2;font-size:42px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3));}
+.zbody{padding:22px 24px 26px;}
+.zbody h3{font-size:21px;margin-bottom:8px;letter-spacing:-.3px;}
+.zbody p{font-size:14px;color:var(--muted);}
+.zfeat{display:flex;gap:14px;margin-top:14px;font-size:12.5px;color:var(--muted);}
+.zfeat span{display:inline-flex;align-items:center;gap:5px;}
+.dotc{width:11px;height:11px;border-radius:50%;}
+
+/* ── COMO (timeline) ── */
+.tl{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;position:relative;}
+.tl::before{content:'';position:absolute;top:34px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,var(--lime),var(--teal),var(--lime));opacity:.4;}
+.tlc{background:var(--paper);border-radius:20px;padding:26px 22px;box-shadow:var(--shadow-sm);position:relative;border:1px solid rgba(8,40,28,.05);
+  transition:transform .3s var(--ease);}
+.tlc:hover{transform:translateY(-6px);}
+.tlc .num{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--teal),var(--forest2));color:#fff;
+  font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+  box-shadow:0 8px 20px rgba(14,124,102,.35);}
+.tlc .tico{font-size:24px;margin-bottom:6px;}
+.tlc h4{font-size:16.5px;margin-bottom:6px;}
+.tlc p{font-size:13.5px;color:var(--muted);}
+.nota-auto{margin-top:28px;background:linear-gradient(120deg,#eefaf4,#fff);border:1px solid #cdeedd;border-radius:18px;
+  padding:20px 26px;font-size:15px;display:flex;gap:14px;align-items:center;}
+.nota-auto .i{font-size:28px;}
+
+/* ── GALERÍA ── */
+.gal{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:160px;gap:16px;}
+.gal .g{border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.gal .g.tall{grid-row:span 2;}
+.gal .g.wide{grid-column:span 2;}
+.gal .g .ph{height:100%;}
+
+/* ── TARIFAS ── */
+#tarifas{background:radial-gradient(120% 100% at 100% 0%,#0e5a43,#0b3d2c 55%,#06241a);color:#fff;}
+#tarifas .sec-k{color:var(--lime);}#tarifas .sec-k::before{background:var(--lime);}
+#tarifas .sec-sub{color:rgba(255,255,255,.72);}
+.tarifas{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.tar{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:28px 24px;
+  backdrop-filter:blur(8px);transition:transform .3s var(--ease),background .3s;position:relative;}
+.tar:hover{transform:translateY(-8px);background:rgba(255,255,255,.1);}
+.tar.dest{background:linear-gradient(160deg,rgba(134,236,174,.16),rgba(134,236,174,.05));border-color:rgba(134,236,174,.5);}
+.tar.dest::before{content:'★ Más elegido';position:absolute;top:-12px;left:24px;background:var(--lime);color:var(--forest);
+  font-size:11.5px;font-weight:800;padding:5px 14px;border-radius:20px;box-shadow:0 6px 16px rgba(134,236,174,.5);}
+.tar .tn{font-size:14.5px;font-weight:600;color:rgba(255,255,255,.82);}
+.tar .tp{font-size:34px;font-weight:800;margin:8px 0 2px;letter-spacing:-1px;}
+.tar .tp small{font-size:14px;font-weight:500;color:rgba(255,255,255,.6);}
+.tar ul{list-style:none;margin-top:16px;font-size:13.5px;color:rgba(255,255,255,.78);}
+.tar li{padding:5px 0;display:flex;gap:9px;align-items:flex-start;}
+.tar li::before{content:'✓';color:var(--lime);font-weight:800;}
+.tar-note{margin-top:26px;font-size:13.5px;color:rgba(255,255,255,.6);}
+
+/* ── IA ── */
+.ia-feats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.iaf{background:var(--paper);border-radius:var(--r);padding:30px 26px;box-shadow:var(--shadow-sm);border:1px solid rgba(8,40,28,.05);
+  transition:transform .3s var(--ease);}
+.iaf:hover{transform:translateY(-6px);box-shadow:var(--shadow);}
+.iaf .fico{width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,var(--forest2),var(--teal));
+  display:flex;align-items:center;justify-content:center;font-size:27px;margin-bottom:16px;box-shadow:0 8px 20px rgba(11,61,44,.25);}
+.iaf h4{font-size:18px;margin-bottom:8px;letter-spacing:-.3px;}
+.iaf p{font-size:14px;color:var(--muted);}
+
+/* ── CTA FINAL ── */
+.cta-final{background:radial-gradient(120% 140% at 50% 0%,#0e6b54,#072a1e);color:#fff;border-radius:32px;
+  padding:64px 40px;text-align:center;position:relative;overflow:hidden;}
+.cta-final .aurora{position:absolute;}
+.cta-final h2{font-size:clamp(30px,4vw,46px);position:relative;z-index:2;}
+.cta-final p{color:rgba(255,255,255,.78);font-size:17px;max-width:480px;margin:14px auto 28px;position:relative;z-index:2;}
+
+/* ── CONTACTO WHATSAPP ── */
+#waBtn{position:fixed;bottom:26px;right:26px;z-index:90;display:inline-flex;align-items:center;gap:9px;
+  background:#25d366;color:#fff;font-size:15px;font-weight:700;padding:14px 20px;border-radius:40px;
+  box-shadow:0 12px 30px rgba(37,211,102,.45);transition:transform .25s var(--ease),box-shadow .25s;}
+#waBtn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(37,211,102,.55);}
+#waBtn .wic{font-size:19px;line-height:1;}
+@media(max-width:760px){#waBtn{padding:14px;border-radius:50%;}#waBtn .wic{font-size:22px;}#waBtn .wtxt{display:none;}}
+
+/* ── FOOTER ── */
+footer{background:var(--forest);color:rgba(255,255,255,.65);padding:60px 0 32px;font-size:14px;}
+.foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;}
+footer h5{color:#fff;font-size:15px;margin-bottom:12px;}
+footer .fcol p{margin-bottom:4px;}
+.muni-strip{margin-top:36px;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.muni-logo{height:58px;width:auto;opacity:.95;}
+.muni-txt{font-size:13px;color:rgba(255,255,255,.55);line-height:1.5;}
+.muni-txt b{color:rgba(255,255,255,.85);font-weight:700;}
+.copy{text-align:center;margin-top:26px;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);font-size:12.5px;color:rgba(255,255,255,.4);}
+
+/* ── DEMO INGRESO (escena animada) ── */
+#demo{background:radial-gradient(120% 110% at 50% -10%,#0e5a43,#06241a);color:#fff;}
+#demo .sec-k{color:var(--lime);}#demo .sec-k::before{background:var(--lime);}
+#demo .sec-sub{color:rgba(255,255,255,.72);}
+.scene{position:relative;height:360px;border-radius:var(--r);overflow:hidden;
+  background:linear-gradient(180deg,#9ed8f2 0%,#c7ecfa 34%,#bfe6a6 52%,#9ad27b 100%);
+  border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 2px 50px rgba(0,80,40,.12);}
+.scene::before{content:'';position:absolute;top:30px;right:18%;width:60px;height:18px;border-radius:20px;
+  background:#fff;opacity:.85;box-shadow:22px 6px 0 -2px #fff,-22px 5px 0 -3px #fff;}/* nube */
+.sun{position:absolute;top:26px;left:60px;width:92px;height:92px;border-radius:50%;
+  background:radial-gradient(circle,#fff7c2,#ffd84d 56%,rgba(255,216,77,0) 74%);opacity:.95;animation:sunpul 5s ease-in-out infinite;}
+@keyframes sunpul{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
+.star{display:none;}
+.tree{position:absolute;bottom:84px;font-size:46px;opacity:.95;filter:drop-shadow(0 4px 6px rgba(0,0,0,.15));}
+.road{position:absolute;left:0;right:0;bottom:0;height:92px;background:linear-gradient(180deg,#d9c79a,#c2ad7c);box-shadow:inset 0 3px 8px rgba(0,0,0,.12);}
+.road::before{content:'';position:absolute;top:44px;left:0;right:0;height:3px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.7) 0 26px,transparent 26px 52px);animation:dash 1.3s linear infinite;}
+@keyframes dash{to{background-position:-52px 0;}}
+.gate{position:absolute;bottom:68px;left:40%;transform:translateX(-50%);z-index:3;}
+.gate .posts{display:flex;justify-content:space-between;width:208px;}
+.gate .post{width:10px;height:96px;background:linear-gradient(180deg,#2b86c5,#143f60);border-radius:3px;}
+.gate .beam{position:absolute;top:-2px;left:-4px;width:216px;height:30px;background:linear-gradient(180deg,#2b86c5,#1e5f8f);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:800;letter-spacing:2px;
+  box-shadow:0 6px 18px rgba(0,0,0,.4);}
+.gate .led{position:absolute;bottom:-4px;width:6px;height:6px;border-radius:50%;background:#ffe27a;box-shadow:0 0 9px #ffe27a;animation:tw 1.4s infinite;}
+.car{position:absolute;bottom:48px;left:-190px;width:128px;height:60px;z-index:5;transition:left 1.5s var(--ease);}
+.car .body{position:absolute;bottom:14px;left:0;width:128px;height:32px;border-radius:16px 20px 8px 8px;
+  background:linear-gradient(180deg,#e85046,#c0352c);box-shadow:0 8px 18px rgba(0,0,0,.45);}
+.car .roof{position:absolute;bottom:32px;left:30px;width:66px;height:24px;border-radius:13px 13px 0 0;background:linear-gradient(180deg,#e85046,#c83b31);}
+.car .win{position:absolute;bottom:36px;left:38px;width:50px;height:15px;border-radius:5px;background:#cfeaf3;opacity:.92;}
+.car .wheel{position:absolute;bottom:0;width:26px;height:26px;border-radius:50%;background:#15171a;border:6px solid #2f3338;}
+.car .wheel.b{left:16px;}.car .wheel.f{right:16px;}
+.car .lamp{position:absolute;bottom:20px;right:-3px;width:6px;height:11px;border-radius:3px;background:#ffe9a8;box-shadow:0 0 14px #ffe27a;}
+.dqr{position:absolute;bottom:122px;left:37%;z-index:6;background:#fff;border-radius:12px;padding:8px;width:74px;
+  box-shadow:0 12px 28px rgba(0,0,0,.45);opacity:0;transform:translateY(12px) scale(.8);transition:.45s var(--ease);}
+.dqr canvas{width:58px;height:58px;display:block;border-radius:4px;}
+.dqr .ph2{font-size:9px;text-align:center;color:#333;font-weight:700;margin-top:3px;}
+.dbeam{position:absolute;bottom:48px;left:40%;width:150px;height:96px;z-index:4;opacity:0;
+  background:linear-gradient(180deg,rgba(134,236,174,.55),transparent);clip-path:polygon(38% 0,62% 0,100% 100%,0 100%);}
+.dcheck{position:absolute;bottom:152px;left:44%;z-index:7;font-size:42px;opacity:0;transform:scale(.4);transition:.45s var(--ease);
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));}
+.dband{position:absolute;bottom:110px;left:36%;z-index:6;opacity:0;transform:translateY(10px);transition:.45s var(--ease);
+  background:#e23b3b;color:#fff;font-size:11px;font-weight:800;padding:6px 13px;border-radius:20px;box-shadow:0 8px 18px rgba(226,59,59,.55);}
+.ztarget{position:absolute;top:38px;right:38px;z-index:3;display:flex;flex-direction:column;gap:10px;}
+.zt{display:flex;align-items:center;gap:9px;font-size:13px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);padding:8px 14px;border-radius:12px;transition:.3s var(--ease);cursor:pointer;user-select:none;}
+.zt:hover{background:rgba(255,255,255,.13);color:#fff;transform:translateX(-3px);}
+.zt .e{font-size:18px;}
+.zt-hint{position:absolute;top:14px;right:40px;z-index:3;font-size:11px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:.5px;}
+.scene.enter .car,.scene.scan .car,.scene.band .car{left:32%;}
+.scene.depart .car{left:58%;}
+.scene.reset .car{left:-190px;transition:none;}
+.scene.scan .dqr,.scene.band .dqr{opacity:1;transform:none;}
+.scene.scan .dbeam{opacity:1;animation:beam .8s var(--ease) infinite alternate;}
+@keyframes beam{from{opacity:.3}to{opacity:.75}}
+.scene.scan .dcheck,.scene.band .dcheck{opacity:1;transform:scale(1);}
+.scene.band .dband,.scene.depart .dband{opacity:1;transform:none;}
+.scene.depart .zt.on{transform:scale(1.1);}
+/* destinos visibles por zona */
+.dest{position:absolute;bottom:74px;left:74%;z-index:2;display:none;align-items:flex-end;gap:6px;}
+.dest::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:130px;height:12px;
+  background:radial-gradient(ellipse,rgba(0,0,0,.22),transparent 70%);}
+.scene.z-quincho .dest-quincho,.scene.z-pileta .dest-pileta,.scene.z-acampe .dest-acampe{display:flex;}
+.dest .big{font-size:62px;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3));}
+.dest .mid{font-size:46px;line-height:1;filter:drop-shadow(0 5px 9px rgba(0,0,0,.28));}
+.dest .sm{font-size:30px;line-height:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25));}
+.dest .swim{font-size:30px;position:absolute;left:48px;bottom:18px;z-index:2;}
+.pool{width:128px;height:44px;border-radius:50%;background:radial-gradient(circle at 50% 25%,#a6e2f5,#2b86c5 78%);
+  box-shadow:inset 0 5px 12px rgba(0,0,0,.2),0 8px 16px rgba(0,0,0,.22);position:relative;}
+.pool::after{content:'';position:absolute;top:11px;left:20px;right:20px;height:3px;border-radius:3px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.65) 0 8px,transparent 8px 16px);}
+.dtag{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:8px;white-space:nowrap;
+  background:rgba(255,255,255,.92);color:#14241e;font-size:11px;font-weight:800;padding:4px 11px;border-radius:14px;
+  box-shadow:0 4px 12px rgba(0,0,0,.18);}
+.scene.depart .dest .big,.scene.depart .dest .mid,.scene.depart .pool{animation:land .6s var(--ease);}
+@keyframes land{0%{transform:translateY(-12px) scale(.9)}60%{transform:translateY(0) scale(1.05)}100%{transform:none}}
+.dcaps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px;}
+.dcap{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:15px 16px;transition:.4s var(--ease);}
+.dcap .dn{font-size:12px;font-weight:800;color:var(--lime);}
+.dcap h4{font-size:14.5px;margin:3px 0;}
+.dcap p{font-size:12px;color:rgba(255,255,255,.58);}
+.dcap.act{background:rgba(134,236,174,.12);border-color:rgba(134,236,174,.45);transform:translateY(-3px);}
+
+/* ── OVERLAYS DE AUTENTICACIÓN ── */
+.ovl{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:24px;overflow:auto;
+  background:linear-gradient(140deg,rgba(7,42,30,.97),rgba(6,36,26,.97));}
+.ovl.show{display:flex;animation:ovlin .35s var(--ease);}
+@keyframes ovlin{from{opacity:0}to{opacity:1}}
+.auth{position:relative;z-index:2;width:408px;max-width:94vw;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);
+  backdrop-filter:blur(20px);border-radius:26px;padding:38px 34px;color:#fff;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.45);animation:rise .5s var(--ease);}
+.auth .llogo{font-size:42px;margin-bottom:4px;line-height:1;}
+.auth .llogo img{height:50px;margin:0 auto;display:block;}
+.auth h3{font-size:22px;font-weight:800;margin:10px 0 4px;letter-spacing:-.3px;}
+.auth p{font-size:13.5px;color:rgba(255,255,255,.66);margin-bottom:22px;}
+.auth .row2{display:flex;gap:10px;}
+.auth input{width:100%;padding:13px 16px;margin-bottom:11px;border-radius:13px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.08);color:#fff;font-family:inherit;font-size:14px;transition:.2s;}
+.auth input:focus{outline:none;border-color:var(--lime);background:rgba(255,255,255,.13);}
+.auth input::placeholder{color:rgba(255,255,255,.5);}
+.auth .btn{width:100%;justify-content:center;background:linear-gradient(135deg,var(--lime),#b6f3cf);color:var(--forest);padding:14px;font-size:15px;margin-top:6px;font-weight:800;}
+.auth .alt{margin-top:16px;font-size:13px;color:rgba(255,255,255,.62);}
+.auth .alt a{color:var(--lime);font-weight:700;cursor:pointer;}
+.auth .demo-note{margin-top:16px;font-size:11.5px;color:rgba(255,255,255,.42);}
+.auth .back{position:absolute;top:-38px;left:0;color:rgba(255,255,255,.72);font-size:13.5px;cursor:pointer;background:none;border:none;font-family:inherit;}
+.code-in{text-align:center;font-size:26px !important;letter-spacing:12px;font-weight:800;}
+.vok{font-size:56px;}
+.uchip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:13.5px;font-weight:600;
+  padding:9px 16px;border-radius:30px;display:inline-flex;align-items:center;gap:6px;}
+.lock-hint{background:rgba(226,59,59,.07);border:1px solid #f1cdcd;color:#a23b3b;border-radius:14px;padding:11px 16px;
+  font-size:13px;margin-bottom:16px;display:flex;gap:9px;align-items:center;font-weight:600;}
+
+/* ── DASHBOARD ADMIN (demo) ── */
+#adminView{position:fixed;inset:0;z-index:210;display:none;background:#eef1ee;overflow:auto;}
+#adminView.show{display:block;}
+.adm-top{background:var(--forest);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:60px;position:sticky;top:0;z-index:5;}
+.adm-top .t{font-weight:800;font-size:15px;}.adm-top .t small{font-weight:400;opacity:.7;font-size:11.5px;display:block;line-height:1.2;}
+.adm-top .ru{display:flex;align-items:center;gap:12px;font-size:13px;}
+.adm-top .ru .chip{background:rgba(255,255,255,.12);padding:7px 14px;border-radius:20px;}
+.adm-top .ru button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:20px;padding:8px 16px;cursor:pointer;font-family:inherit;font-size:12.5px;}
+.adm-wrap{display:flex;min-height:calc(100vh - 60px);}
+.adm-side{width:210px;background:#0b3d2c;color:rgba(255,255,255,.75);padding:18px 0;font-size:13.5px;flex-shrink:0;}
+.adm-side .sl{color:#fff;font-weight:800;padding:0 22px 16px;font-size:14px;}
+.adm-side a{display:flex;gap:10px;padding:11px 22px;cursor:pointer;transition:.2s;}
+.adm-side a:hover{background:rgba(255,255,255,.06);}
+.adm-side a.on{background:rgba(134,236,174,.14);color:#fff;border-left:3px solid var(--lime);}
+.adm-main{flex:1;padding:24px;min-width:0;}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.kpi{background:#fff;border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px rgba(0,0,0,.05);}
+.kpi .kl{font-size:11.5px;color:#7a8784;text-transform:uppercase;letter-spacing:.5px;}
+.kpi .kv{font-size:24px;font-weight:800;color:#14241e;margin-top:2px;}
+.kpi .kv.gr{color:#1f8a4d;}
+.prow{display:grid;grid-template-columns:1.1fr 1.6fr;gap:14px;margin-top:14px;}
+.pcard{background:#fff;border-radius:16px;padding:18px;box-shadow:0 4px 16px rgba(0,0,0,.05);}
+.pcard h5{font-size:13.5px;color:#444;margin-bottom:14px;}
+.bars{display:flex;align-items:flex-end;gap:9px;height:130px;}
+.bar{flex:1;background:linear-gradient(180deg,#86ecae,#0e7c66);border-radius:6px 6px 0 0;transition:height 1s var(--ease);}
+.bxl{display:flex;gap:9px;font-size:10px;color:#999;margin-top:7px;}.bxl span{flex:1;text-align:center;}
+.atbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.atbl th{text-align:left;color:#8a948f;font-weight:600;padding:7px 8px;border-bottom:1px solid #eee;}
+.atbl td{padding:8px;border-bottom:1px solid #f3f3ef;}
+.est{font-size:11px;font-weight:700;padding:3px 10px;border-radius:14px;}
+.e-ok{background:#e7f5ec;color:#1f8a4d;}.e-pen{background:#fff4d9;color:#a9791c;}.e-in{background:#e8f1fa;color:#2471a3;}
+.zoc{background:#fff;border-radius:16px;padding:18px;box-shadow:0 4px 16px rgba(0,0,0,.05);margin-top:14px;}
+.zoc h5{font-size:13.5px;color:#444;margin-bottom:14px;}
+.zrow{display:flex;align-items:center;gap:12px;margin:10px 0;font-size:12.5px;}
+.zrow .zn{width:100px;font-weight:600;color:#445;}
+.zbar{flex:1;height:11px;background:#eee;border-radius:8px;overflow:hidden;}.zbar i{display:block;height:100%;border-radius:8px;}
+.zrow .zv{width:60px;text-align:right;color:#667;font-weight:700;}
+
+/* ── SERVICIOS ── */
+.servs{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+.serv{background:var(--paper);border:1px solid rgba(8,40,28,.05);border-radius:18px;padding:22px 14px;text-align:center;box-shadow:var(--shadow-sm);transition:transform .3s var(--ease);}
+.serv:hover{transform:translateY(-6px);box-shadow:var(--shadow);}
+.serv .si{width:54px;height:54px;margin:0 auto 10px;border-radius:16px;background:linear-gradient(135deg,#eef7f0,#dcefe2);display:flex;align-items:center;justify-content:center;font-size:26px;}
+.serv .sn{font-size:13.5px;font-weight:600;color:var(--ink);}
+
+/* ── FAQ + REGLAMENTO ── */
+.faq-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:30px;align-items:start;}
+.faq-list{display:flex;flex-direction:column;gap:12px;}
+.faq{background:var(--paper);border:1px solid rgba(8,40,28,.06);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.faq .q{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 20px;cursor:pointer;font-weight:600;font-size:15px;}
+.faq .ic{width:26px;height:26px;border-radius:50%;background:#eef7f0;color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:.3s var(--ease);}
+.faq.open .ic{transform:rotate(45deg);background:var(--teal);color:#fff;}
+.faq .a{max-height:0;overflow:hidden;transition:max-height .4s var(--ease);}
+.faq .a p{padding:0 20px 18px;color:var(--muted);font-size:14px;}
+.faq.open .a{max-height:240px;}
+.rules{background:radial-gradient(120% 130% at 100% 0,#0e5a43,#0b3d2c);color:#fff;border-radius:var(--r);padding:28px;box-shadow:var(--shadow);}
+.rules h3{font-size:19px;margin-bottom:18px;display:flex;gap:9px;align-items:center;}
+.rules ul{list-style:none;display:flex;flex-direction:column;gap:13px;}
+.rules li{display:flex;gap:11px;font-size:13.5px;color:rgba(255,255,255,.82);align-items:flex-start;line-height:1.45;}
+.rules li .ri{font-size:16px;flex-shrink:0;}
+
+/* ── CÓMO LLEGAR ── */
+.llegar{display:grid;grid-template-columns:1fr 1.2fr;gap:26px;align-items:stretch;}
+.llegar-info .li{display:flex;gap:13px;margin-bottom:18px;}
+.llegar-info .li .lic{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--forest2),var(--teal));color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.llegar-info .li h4{font-size:15px;margin-bottom:2px;}
+.llegar-info .li p{font-size:13.5px;color:var(--muted);}
+.mapbox{border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);border:1px solid rgba(8,40,28,.08);min-height:340px;}
+.mapbox iframe{width:100%;height:100%;min-height:340px;border:0;display:block;filter:saturate(1.05);}
+
+/* ── MENÚ MOBILE ── */
+.hamb{display:none;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:20px;cursor:pointer;align-items:center;justify-content:center;}
+.mnav{position:fixed;inset:0;z-index:150;background:linear-gradient(150deg,#072a1e,#0b3d2c);display:none;flex-direction:column;padding:84px 32px 32px;gap:4px;}
+.mnav.open{display:flex;animation:ovlin .3s var(--ease);}
+.mnav a{color:#fff;font-size:20px;font-weight:600;padding:15px 0;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer;}
+.mnav a.btn{border:none;justify-content:center;margin-top:20px;color:var(--forest);}
+.mnav .mclose{position:absolute;top:24px;right:28px;background:none;border:none;color:#fff;font-size:32px;cursor:pointer;padding:0;width:auto;height:auto;}
+
+/* ── VOLVER ARRIBA ── */
+#toTop{position:fixed;right:26px;bottom:100px;z-index:85;width:46px;height:46px;border-radius:50%;background:#fff;color:var(--forest2);border:1px solid rgba(8,40,28,.1);box-shadow:var(--shadow-sm);font-size:20px;cursor:pointer;opacity:0;pointer-events:none;transition:.3s var(--ease);}
+#toTop.show{opacity:1;pointer-events:auto;}
+#toTop:hover{transform:translateY(-3px);background:var(--lime);}
+
+/* ── MIS RESERVAS ── */
+.auth.wide{width:460px;}
+.mis-grid{display:flex;flex-direction:column;gap:13px;max-height:58vh;overflow:auto;margin-top:8px;text-align:left;}
+.misr{display:flex;gap:15px;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:13px;}
+.misr canvas{border-radius:10px;background:#fff;padding:5px;flex-shrink:0;}
+.misr .mi b{font-size:15px;}
+.misr .mi p{font-size:12.5px;color:rgba(255,255,255,.66);margin-top:2px;}
+.misr .pz{display:inline-block;margin-top:7px;font-size:11px;font-weight:700;color:#fff;padding:3px 11px;border-radius:14px;}
+
+@media(max-width:900px){
+  .book-grid,.bento,.tl,.tarifas,.ia-feats,.foot-top,.kpis,.prow,.faq-grid,.llegar{grid-template-columns:1fr;}
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .gal,.dcaps,.servs{grid-template-columns:repeat(2,1fr);}
+  .menu,.nav-cta{display:none;}
+  .hamb{display:flex;}
+  .tl::before{display:none;}
+  .scene{height:300px;}
+  .adm-side{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="bar">
+    <a href="#top" class="logo"><img src="assets/emblem_white.png" alt=""> Las Casuarinas</a>
+    <div class="menu">
+      <a href="#reservar">Reservar</a>
+      <a href="#zonas">Zonas</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#tarifas">Tarifas</a>
+      <a href="#llegar">Cómo llegar</a>
+      <a onclick="openOvl('ovlAdmin')" style="opacity:.6">Admin</a>
+    </div>
+    <div class="nav-cta" id="navCta">
+      <a class="btn btn-glass" onclick="openOvl('ovlLogin')">Ingresar</a>
+      <a class="btn btn-lime" onclick="reserveCTA()">Reservar →</a>
+    </div>
+    <button class="hamb" onclick="toggleMnav()">☰</button>
+  </div>
+</nav>
+
+<!-- MENÚ MOBILE -->
+<div class="mnav" id="mnav">
+  <button class="mclose" onclick="toggleMnav()">×</button>
+  <a href="#reservar" onclick="toggleMnav()">Reservar</a>
+  <a href="#zonas" onclick="toggleMnav()">Zonas</a>
+  <a href="#servicios" onclick="toggleMnav()">Servicios</a>
+  <a href="#como" onclick="toggleMnav()">Cómo funciona</a>
+  <a href="#tarifas" onclick="toggleMnav()">Tarifas</a>
+  <a href="#llegar" onclick="toggleMnav()">Cómo llegar</a>
+  <a onclick="toggleMnav();openOvl('ovlAdmin')">Admin</a>
+  <a class="btn btn-lime" onclick="toggleMnav();reserveCTA()">Reservar →</a>
+</div>
+
+<!-- HERO -->
+<header id="top">
+  <div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div>
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-txt">
+        <span class="kicker"><span class="led"></span> Parque Aguirre · Santiago del Estero</span>
+        <h1>
+          <span class="ln"><span>Tu día al aire libre,</span></span>
+          <span class="ln"><span class="serif italic grad">reservado</span></span>
+          <span class="ln"><span>en 2 minutos.</span></span>
+        </h1>
+        <p class="hero-sub">Elegí <b>quincho, pileta o acampe</b>, pagá online y recibí tu <b>código QR</b> por WhatsApp. Llegás, lo mostrás por la ventanilla y entrás — sin filas, sin papeles.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-big" onclick="reserveCTA()">Reservar online →</a>
+          <a href="#como" class="btn btn-glass">¿Cómo funciona?</a>
+        </div>
+      </div>
+      <div class="hero-phone">
+        <div class="phone phone-float">
+          <div class="notch"></div>
+          <div class="pscreen">
+            <div class="pbar">Camping Las Casuarinas</div>
+            <div class="pbody">
+              <div class="pok">✓ Reserva confirmada</div>
+              <canvas class="pqr" id="qrHero" width="140" height="140"></canvas>
+              <div class="pinfo"><b>Quincho 3</b> · sáb 14/06 · 13–20 hs<br>Familia González · 4 personas</div>
+              <span class="ptag">🔴 Zona Quincho</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="stats" id="stats">
+      <div class="stat"><div class="lbl">Aforo en vivo</div><div class="val"><span class="led" style="width:9px;height:9px;border-radius:50%;background:var(--lime);animation:pul 1.6s infinite;"></span><span class="count" data-count="312">0</span> <small style="font-size:14px;color:rgba(255,255,255,.55)">/ 700</small></div></div>
+      <div class="stat"><div class="lbl">Quinchos libres</div><div class="val"><span class="count" data-count="3">0</span> <small style="font-size:14px;color:rgba(255,255,255,.55)">/ 8</small></div></div>
+      <div class="stat"><div class="lbl">Pileta ahora</div><div class="val"><span class="count" data-count="64">0</span> <small style="font-size:14px;color:rgba(255,255,255,.55)">/ 80</small></div></div>
+      <div class="stat"><div class="lbl">Hoy en Santiago</div><div class="val">☀️ <span class="count" data-count="31">0</span>°</div></div>
+    </div>
+  </div>
+  <div class="scroll-cue"><div class="ms"></div>SCROLL</div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track" id="ticker">
+    <span>🏊 Pileta con guardavidas <span class="d">·</span></span><span>🏠 8 quinchos con parrilla <span class="d">·</span></span>
+    <span>⛺ Acampe bajo las casuarinas <span class="d">·</span></span><span>📲 QR por WhatsApp <span class="d">·</span></span>
+    <span>🚗 Ingreso sin bajar del auto <span class="d">·</span></span><span>🌳 Naturaleza en la ciudad <span class="d">·</span></span>
+  </div>
+</div>
+
+<!-- RESERVA -->
+<section id="reservar">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-k">Reservá online</div>
+      <h2>Tu reserva en <span class="serif italic">3 pasos</span></h2>
+      <p class="sec-sub">Sin llamados ni vueltas: elegís, pagás y el QR te llega al instante por WhatsApp y correo.</p>
+    </div>
+
+    <div class="book-grid">
+      <div class="booking reveal">
+        <div class="steps">
+          <div class="stp on" id="st1"><span class="n">1</span> ¿Qué?</div>
+          <div class="stp" id="st2"><span class="n">2</span> Fecha</div>
+          <div class="stp" id="st3"><span class="n">3</span> Pago</div>
+          <div class="stp" id="st4"><span class="n">4</span> Tu QR</div>
+        </div>
+
+        <!-- paso 1 -->
+        <div class="pane show" id="p1">
+          <div class="lock-hint" id="lockHint">🔒 <span>Iniciá sesión o registrate para poder reservar — te toma 1 minuto.</span></div>
+          <div class="reg-tip">💡 <span>Para reservar vas a crear una cuenta en 1 minuto (nombre, email y WhatsApp). Así te llegan tus QR al teléfono.</span></div>
+          <div class="tipos">
+            <button class="tipo sel" data-t="Quincho" data-c="#e23b3b">
+              <span class="tico">🏠</span>
+              <span><span class="tt">Quincho</span><br><span class="td">Hasta 50 personas · parrilla y mesas</span></span>
+              <span class="chip" style="background:#e23b3b">pulsera roja</span>
+              <span class="rad"></span>
+            </button>
+            <button class="tipo" data-t="Pase de día + Pileta" data-c="#2e9d63">
+              <span class="tico">🏊</span>
+              <span><span class="tt">Pase de día + Pileta</span><br><span class="td">Acceso al predio y pileta</span></span>
+              <span class="chip" style="background:#2e9d63">pulsera verde</span>
+              <span class="rad"></span>
+            </button>
+            <button class="tipo" data-t="Acampe" data-c="#2b86c5">
+              <span class="tico">⛺</span>
+              <span><span class="tt">Acampe</span><br><span class="td">Parcela con fogón · por noche</span></span>
+              <span class="chip" style="background:#2b86c5">pulsera azul</span>
+              <span class="rad"></span>
+            </button>
+          </div>
+          <div class="bk-actions"><button class="btn btn-next" onclick="needAuth()">Continuar →</button></div>
+        </div>
+
+        <!-- paso 2 -->
+        <div class="pane" id="p2">
+          <div class="frm">
+            <div class="fld"><label>Fecha</label><input type="date" id="fFecha" value="2026-06-14"></div>
+            <div class="fld"><label>Cantidad de personas</label>
+              <div class="stepper"><button onclick="pers(-1)">−</button><span id="fPers">4</span><button onclick="pers(1)">+</button></div>
+            </div>
+          </div>
+          <div class="bk-actions">
+            <button class="btn btn-back" onclick="goStep(1)">← Volver</button>
+            <button class="btn btn-next" onclick="crearReserva(event)">Ir al pago →</button>
+          </div>
+        </div>
+
+        <!-- paso 3: PAGO (el QR se genera recién al pagar) -->
+        <div class="pane" id="p3">
+          <div class="pago-res">
+            <div class="pago-row"><span>Reserva</span><b id="pgTipo">—</b></div>
+            <div class="pago-row"><span>Fecha</span><b id="pgFecha">—</b></div>
+            <div class="pago-row"><span>Personas</span><b id="pgPers">—</b></div>
+            <div class="pago-row total"><span>Total a pagar</span><b id="pgMonto">$0</b></div>
+          </div>
+          <p class="qr-note">🔒 El QR se genera <b>una vez confirmado el pago</b>. <i>(Demo: pago simulado — luego se integra MercadoPago.)</i></p>
+          <div class="bk-actions">
+            <button class="btn btn-back" onclick="goStep(1)">Cancelar</button>
+            <button class="btn btn-next" onclick="pagarReserva(event)">💳 Pagar ahora</button>
+          </div>
+        </div>
+
+        <!-- paso 4: TU QR -->
+        <div class="pane" id="p4">
+          <div class="qr-out">
+            <canvas id="qrBook" width="158" height="158"></canvas>
+            <div class="qr-res">
+              <b id="rTipo">Quincho</b> · <span id="rFecha">14/06</span> · <span id="rPers">4</span> personas
+              <div style="font-size:12.5px;color:#5c6f66;margin-top:5px;" id="rCupo">Cupo del quincho</div>
+              <div class="cupo-bar"><i id="rBar" style="width:8%"></i></div>
+            </div>
+            <p class="qr-note">✅ Pago confirmado. Tu QR queda guardado en <b>Mis reservas</b> para mostrarlo en la entrada.</p>
+          </div>
+          <div class="bk-actions"><button class="btn btn-back" onclick="goStep(1)">Hacer otra reserva</button></div>
+        </div>
+      </div>
+
+      <!-- aside visual -->
+      <div class="book-aside reveal" style="--i:1">
+        <div class="ph ph-bg"><span class="ph-lbl"><span class="ico">📷</span>Foto del camping<br><small style="opacity:.7">próximamente</small></span></div>
+        <div class="ov"></div>
+        <div class="ac">
+          <h3>Todo incluido en tu reserva</h3>
+          <p>Reservás desde el celu y entrás directo. Sin imprimir nada.</p>
+          <div class="ba-feats">
+            <div><span class="ck">✓</span> Pago online seguro con MercadoPago</div>
+            <div><span class="ck">✓</span> QR al instante por WhatsApp</div>
+            <div><span class="ck">✓</span> Ingreso sin filas ni papeles</div>
+            <div><span class="ck">✓</span> Cancelación flexible</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ZONAS -->
+<section id="zonas" style="padding-top:30px;">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-k">El predio</div>
+      <h2>Una pulsera, <span class="serif italic">tu zona</span></h2>
+      <p class="sec-sub">Al ingresar recibís una pulsera de color según lo que reservaste. Así de simple es saber quién va dónde.</p>
+    </div>
+    <div class="bento">
+      <div class="zona reveal" style="--i:0">
+        <div class="zhead">
+          <div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Foto quinchos</span></div>
+          <span class="badge"><span class="dotc" style="background:#e23b3b"></span> Pulsera roja</span>
+          <span class="zico">🏠</span>
+        </div>
+        <div class="zbody"><h3>Quinchos</h3><p>8 quinchos con parrilla, mesas y sombra. Hasta 50 personas cada uno, con cupo controlado por QR.</p>
+          <div class="zfeat"><span>🔥 Parrilla</span><span>🪑 Mesas</span><span>🌳 Sombra</span></div></div>
+      </div>
+      <div class="zona reveal" style="--i:1">
+        <div class="zhead">
+          <div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Foto pileta</span></div>
+          <span class="badge"><span class="dotc" style="background:#2e9d63"></span> Pulsera verde</span>
+          <span class="zico">🏊</span>
+        </div>
+        <div class="zbody"><h3>Pileta</h3><p>Pileta recreativa con guardavidas y aforo controlado en tiempo real. Acceso con pase de pileta.</p>
+          <div class="zfeat"><span>🛟 Guardavidas</span><span>📊 Aforo en vivo</span></div></div>
+      </div>
+      <div class="zona reveal" style="--i:2">
+        <div class="zhead">
+          <div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Foto acampe</span></div>
+          <span class="badge"><span class="dotc" style="background:#2b86c5"></span> Pulsera azul</span>
+          <span class="zico">⛺</span>
+        </div>
+        <div class="zbody"><h3>Zona de acampe</h3><p>Parcelas con fogón, agua y luz, a la sombra de las casuarinas. Reservá tu noche sin trámites.</p>
+          <div class="zfeat"><span>🔥 Fogón</span><span>💧 Agua y luz</span><span>🚿 Baños 24h</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section id="servicios" style="padding-top:30px;">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-k">Servicios</div>
+      <h2>Todo lo que <span class="serif italic">necesitás</span></h2>
+      <p class="sec-sub">El predio cuenta con todos los servicios para que pases el día sin preocuparte por nada.</p>
+    </div>
+    <div class="servs reveal">
+      <div class="serv"><div class="si">🚻</div><div class="sn">Baños</div></div>
+      <div class="serv"><div class="si">🚿</div><div class="sn">Duchas</div></div>
+      <div class="serv"><div class="si">🏪</div><div class="sn">Kiosco</div></div>
+      <div class="serv"><div class="si">🅿️</div><div class="sn">Estacionamiento</div></div>
+      <div class="serv"><div class="si">🔥</div><div class="sn">Asadores</div></div>
+      <div class="serv"><div class="si">🛟</div><div class="sn">Guardavidas</div></div>
+      <div class="serv"><div class="si">🛝</div><div class="sn">Juegos infantiles</div></div>
+      <div class="serv"><div class="si">🌳</div><div class="sn">Mucha sombra</div></div>
+      <div class="serv"><div class="si">💧</div><div class="sn">Agua potable</div></div>
+      <div class="serv"><div class="si">🚓</div><div class="sn">Seguridad</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section id="como">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-k">El ingreso</div>
+      <h2>Del celular a la <span class="serif italic">reposera</span></h2>
+      <p class="sec-sub">Cuatro pasos y estás adentro disfrutando.</p>
+    </div>
+    <div class="tl">
+      <div class="tlc reveal" style="--i:0"><div class="num">1</div><div class="tico">📱</div><h4>Reservás online</h4><p>Elegís qué, cuándo y cuántos. El QR te llega por WhatsApp al instante.</p></div>
+      <div class="tlc reveal" style="--i:1"><div class="num">2</div><div class="tico">🚗</div><h4>Mostrás el QR</h4><p>Por la ventanilla del auto. El guardia lo escanea: una sola validación por grupo.</p></div>
+      <div class="tlc reveal" style="--i:2"><div class="num">3</div><div class="tico">🎟️</div><h4>Recibís tu pulsera</h4><p>Del color de tu zona, sin bajar del auto. El sistema descuenta del cupo solo.</p></div>
+      <div class="tlc reveal" style="--i:3"><div class="num">4</div><div class="tico">🌳</div><h4>Disfrutás</h4><p>Quincho, pileta o acampe. El personal te identifica de un vistazo, por el color.</p></div>
+    </div>
+    <div class="nota-auto reveal"><span class="i">⚡</span>
+      <span><b>Sin filas:</b> una familia entra con un solo escaneo. El conductor muestra el QR, reciben las pulseras por la ventanilla y pasan. Todo queda registrado.</span>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO DE INGRESO (escena animada) -->
+<section id="demo">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-k">En vivo</div>
+      <h2>Así es <span class="serif italic">entrar</span> al camping</h2>
+      <p class="sec-sub">Llega el auto, escanean el QR por la ventanilla, reciben la pulsera y pasan a su zona — sin bajar del vehículo. <b>Tocá Quincho, Pileta o Acampe</b> para ver el ingreso de cada zona.</p>
+    </div>
+
+    <div class="scene reveal" id="scene">
+      <div class="sun"></div>
+      <div class="star" style="top:50px;left:30%"></div><div class="star" style="top:80px;left:48%"></div>
+      <div class="star" style="top:40px;left:70%"></div><div class="star" style="top:96px;left:84%"></div>
+      <div class="tree" style="left:8%">🌲</div><div class="tree" style="left:20%;font-size:54px;bottom:78px">🌳</div>
+      <div class="tree" style="left:84%;font-size:50px">🌳</div>
+
+      <!-- zonas destino (clickeables) -->
+      <div class="zt-hint">👆 tocá una zona</div>
+      <div class="ztarget">
+        <div class="zt on" data-z="quincho" onclick="selectZone('quincho')">🔴 <span class="e">🏠</span> Quincho</div>
+        <div class="zt" data-z="pileta" onclick="selectZone('pileta')">🟢 <span class="e">🏊</span> Pileta</div>
+        <div class="zt" data-z="acampe" onclick="selectZone('acampe')">🔵 <span class="e">⛺</span> Acampe</div>
+      </div>
+
+      <!-- entrada -->
+      <div class="gate">
+        <div class="beam">LAS CASUARINAS</div>
+        <div class="posts"><div class="post"></div><div class="post"></div></div>
+        <div class="led" style="left:18px"></div><div class="led" style="right:18px"></div>
+      </div>
+
+      <!-- popups -->
+      <div class="dqr"><canvas id="qrDemo" width="58" height="58"></canvas><div class="ph2">Quincho 3</div></div>
+      <div class="dbeam"></div>
+      <div class="dcheck">✅</div>
+      <div class="dband">🎟️ Pulsera roja</div>
+
+      <!-- destinos de cada zona -->
+      <div class="dest dest-quincho"><div class="dtag">Quincho</div><span class="sm">🔥</span><span class="big">🏠</span></div>
+      <div class="dest dest-pileta"><div class="dtag">Pileta</div><div class="pool"></div><span class="swim">🏊</span></div>
+      <div class="dest dest-acampe"><div class="dtag">Acampe</div><span class="mid">⛺</span><span class="big">⛺</span><span class="sm">🔥</span></div>
+
+      <!-- auto -->
+      <div class="car">
+        <div class="roof"></div><div class="win"></div>
+        <div class="body"></div>
+        <div class="wheel b"></div><div class="wheel f"></div>
+        <div class="lamp"></div>
+      </div>
+
+      <div class="road"></div>
+    </div>
+
+    <div class="dcaps">
+      <div class="dcap act"><div class="dn">01</div><h4>📱 Llega</h4><p>El auto se acerca a la entrada con su reserva.</p></div>
+      <div class="dcap"><div class="dn">02</div><h4>🔦 Escanea QR</h4><p>El guardia lee el QR por la ventanilla.</p></div>
+      <div class="dcap"><div class="dn">03</div><h4>🎟️ Pulsera</h4><p>Recibe la pulsera del color de su zona.</p></div>
+      <div class="dcap"><div class="dn">04</div><h4>🌳 A su zona</h4><p>Pasa directo, con el cupo ya descontado.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- GALERÍA (placeholders para fotos futuras) -->
+<section style="padding-top:20px;">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-k">Galería</div>
+      <h2>Conocé <span class="serif italic">Las Casuarinas</span></h2>
+      <p class="sec-sub">Las fotos reales del camping van acá — las sumamos en la próxima etapa.</p>
+    </div>
+    <div class="gal reveal">
+      <div class="g wide tall"><div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Vista principal</span></div></div>
+      <div class="g"><div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Pileta</span></div></div>
+      <div class="g"><div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Quinchos</span></div></div>
+      <div class="g"><div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Acampe</span></div></div>
+      <div class="g"><div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Entrada</span></div></div>
+      <div class="g wide"><div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Atardecer en el predio</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TARIFAS -->
+<section id="tarifas">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-k">Tarifas</div>
+      <h2 style="color:#fff;">Precios claros, <span class="serif italic">sin sorpresas</span></h2>
+      <p class="sec-sub">Valores de ejemplo para la maqueta — se cargan desde el panel según temporada.</p>
+    </div>
+    <div class="tarifas">
+      <div class="tar reveal" style="--i:0"><div class="tn">Pase de día</div><div class="tp">$3.500<small> /pers.</small></div>
+        <ul><li>Acceso al predio</li><li>Mesas y sombra</li><li>Estacionamiento</li></ul></div>
+      <div class="tar dest reveal" style="--i:1"><div class="tn">Pase + Pileta</div><div class="tp">$5.500<small> /pers.</small></div>
+        <ul><li>Todo lo del pase de día</li><li>Pileta con guardavidas</li><li>Pulsera sumergible</li></ul></div>
+      <div class="tar reveal" style="--i:2"><div class="tn">Quincho (día)</div><div class="tp">$45.000<small> /quincho</small></div>
+        <ul><li>Hasta 50 personas</li><li>Parrilla + mesas</li><li>QR para tus invitados</li></ul></div>
+      <div class="tar reveal" style="--i:3"><div class="tn">Acampe</div><div class="tp">$4.000<small> /noche</small></div>
+        <ul><li>Parcela con fogón</li><li>Agua y luz</li><li>Baños 24 hs</li></ul></div>
+    </div>
+    <p class="tar-note">* Residentes y jubilados: consultá descuentos en boletería o por WhatsApp.</p>
+  </div>
+</section>
+
+<!-- IA -->
+<section id="ia">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-k">Atención inteligente</div>
+      <h2>Un asistente que <span class="serif italic">nunca duerme</span></h2>
+      <p class="sec-sub">El sistema integra inteligencia artificial para atender y resolver sin demoras.</p>
+    </div>
+    <div class="ia-feats">
+      <div class="iaf reveal" style="--i:0"><div class="fico">💬</div><h4>Reservá por WhatsApp</h4><p>Escribí "¿hay quincho el sábado para 30?": el asistente te pide tus datos, te registra y toma la reserva — igual que en la web.</p></div>
+      <div class="iaf reveal" style="--i:1"><div class="fico">🧾</div><h4>Pagos sin demora</h4><p>¿Pagaste por transferencia? Mandá el comprobante: la IA lo lee, valida el monto y confirma al instante.</p></div>
+      <div class="iaf reveal" style="--i:2"><div class="fico">📲</div><h4>Dudas resueltas por WhatsApp</h4><p>Horarios, precios, qué llevar, cómo llegar: escribís al WhatsApp del camping y te responden al momento.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ + REGLAMENTO -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-k">Preguntas frecuentes</div>
+      <h2>Antes de <span class="serif italic">venir</span></h2>
+      <p class="sec-sub">Las dudas más comunes, resueltas. Si te queda otra, escribinos por WhatsApp.</p>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-list reveal">
+        <div class="faq"><div class="q">¿Puedo llevar a mi mascota? <span class="ic">+</span></div><div class="a"><p>Sí, se permiten mascotas con correa en la zona de acampe y áreas comunes. En la pileta no está permitido por higiene.</p></div></div>
+        <div class="faq"><div class="q">¿Se puede pagar en efectivo? <span class="ic">+</span></div><div class="a"><p>Podés reservar y pagar online con MercadoPago, o reservar online y abonar en boletería al llegar (efectivo, débito o transferencia).</p></div></div>
+        <div class="faq"><div class="q">¿Qué necesito llevar? <span class="ic">+</span></div><div class="a"><p>Tu QR (en el celu alcanza), repelente, gorra y ganas de descansar. Para el quincho podés traer tu carne y bebidas; hay parrilla y mesas.</p></div></div>
+        <div class="faq"><div class="q">¿Puedo cancelar mi reserva? <span class="ic">+</span></div><div class="a"><p>Sí, hasta 48 hs antes con reintegro completo. Dentro de las 48 hs se puede reprogramar para otra fecha.</p></div></div>
+        <div class="faq"><div class="q">¿Hay descuentos para jubilados o residentes? <span class="ic">+</span></div><div class="a"><p>Sí. Residentes de la capital y jubilados tienen tarifa preferencial. Consultá en boletería o por WhatsApp con tu documento.</p></div></div>
+      </div>
+      <div class="rules reveal" style="--i:1">
+        <h3>📋 Normas del predio</h3>
+        <ul>
+          <li><span class="ri">🕘</span> Horario del predio: 9 a 21 hs · Pileta: 10 a 20 hs.</li>
+          <li><span class="ri">🥤</span> No se permite vidrio en la zona de pileta.</li>
+          <li><span class="ri">🔥</span> Fuego solo en asadores y fogones habilitados.</li>
+          <li><span class="ri">🎵</span> Música a volumen moderado, respetando a los demás.</li>
+          <li><span class="ri">🧹</span> Dejá tu lugar limpio: cuidemos el camping entre todos.</li>
+          <li><span class="ri">🎟️</span> Conservá tu pulsera puesta durante toda la jornada.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CÓMO LLEGAR -->
+<section id="llegar" style="padding-top:20px;">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-k">Ubicación</div>
+      <h2>Cómo <span class="serif italic">llegar</span></h2>
+      <p class="sec-sub">Estamos en el Parque Aguirre, en plena ciudad de Santiago del Estero.</p>
+    </div>
+    <div class="llegar">
+      <div class="llegar-info reveal">
+        <div class="li"><div class="lic">📍</div><div><h4>Dirección</h4><p>Parque Aguirre, Ciudad de Santiago del Estero.</p></div></div>
+        <div class="li"><div class="lic">🚗</div><div><h4>En auto</h4><p>Ingreso por la entrada del parque. Estacionamiento propio dentro del predio.</p></div></div>
+        <div class="li"><div class="lic">🚌</div><div><h4>En colectivo</h4><p>Líneas urbanas que llegan al Parque Aguirre. Bajás y caminás hasta la entrada.</p></div></div>
+        <div class="li"><div class="lic">🕘</div><div><h4>Horarios</h4><p>Predio: 9 a 21 hs · Pileta: 10 a 20 hs · Reservas online: 24 hs.</p></div></div>
+      </div>
+      <div class="mapbox reveal" style="--i:1">
+        <iframe loading="lazy" title="Ubicación Camping Las Casuarinas" src="https://www.openstreetmap.org/export/embed.html?bbox=-64.2760%2C-27.7950%2C-64.2530%2C-27.7770&layer=mapnik&marker=-27.7860%2C-64.2645"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section style="padding-top:20px;">
+  <div class="wrap">
+    <div class="cta-final reveal">
+      <div class="aurora a2" style="opacity:.3"></div>
+      <h2>¿Listo para tu día al aire libre?</h2>
+      <p>Reservá ahora y recibí tu QR en segundos. Te esperamos en el Parque Aguirre.</p>
+      <a class="btn btn-big" style="position:relative;z-index:2" onclick="reserveCTA()">Reservar mi lugar →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="fcol"><img src="assets/logo_white.png" alt="Camping Las Casuarinas" style="height:92px;margin-bottom:14px;opacity:.95;">
+        <p>Parque Aguirre · Ciudad de Santiago del Estero</p><p>Naturaleza, descanso y tradición.</p></div>
+      <div class="fcol"><h5>Contacto</h5><p>📞 (385) 4XX-XXXX</p><p>💬 WhatsApp: (385) 5XX-XXXX</p><p>✉️ reservas@lascasuarinas.gob.ar</p></div>
+      <div class="fcol"><h5>Horarios</h5><p>Predio: 9 a 21 hs</p><p>Pileta: 10 a 20 hs</p><p>Reservas online: 24 hs</p></div>
+    </div>
+    <div class="muni-strip">
+      <img src="assets/muni_white.png" alt="Municipalidad de la Capital" class="muni-logo">
+      <div class="muni-txt">Predio de dominio municipal · Una gestión de la<br><b>Municipalidad de la Capital — Santiago del Estero</b></div>
+    </div>
+    <div class="copy">Maqueta de diseño — Sistema de Gestión Camping Las Casuarinas · 2026</div>
+  </div>
+</footer>
+
+<!-- LOGIN VISITANTE -->
+<div class="ovl" id="ovlLogin">
+  <div class="auth">
+    <button class="back" onclick="closeOvls()">← Volver al sitio</button>
+    <div class="llogo"><img src="assets/emblem_white.png" alt=""></div>
+    <h3>Iniciar sesión</h3>
+    <p>Entrá para reservar y ver tus QR</p>
+    <form onsubmit="return doLogin(event)">
+      <input type="text" placeholder="Email o teléfono" required>
+      <input type="password" placeholder="Contraseña" required>
+      <button type="submit" class="btn">Entrar →</button>
+    </form>
+    <div class="alt">¿No tenés cuenta? <a onclick="openOvl('ovlReg')">Registrate en 1 minuto</a></div>
+    <div class="demo-note">Maqueta de demostración: ingresá con cualquier dato.</div>
+  </div>
+</div>
+
+<!-- REGISTRO VISITANTE -->
+<div class="ovl" id="ovlReg">
+  <div class="auth">
+    <button class="back" onclick="closeOvls()">← Volver al sitio</button>
+    <div class="llogo"><img src="assets/emblem_white.png" alt=""></div>
+    <h3>Creá tu cuenta</h3>
+    <p>Un registro mínimo, una sola vez — para enviarte tus QR</p>
+    <form onsubmit="return doRegister(event)">
+      <div class="row2"><input type="text" id="rNombre" placeholder="Nombre" required><input type="text" id="rApellido" placeholder="Apellido"></div>
+      <input type="email" id="rEmail" placeholder="Email" required>
+      <input type="tel" id="rTel" placeholder="Teléfono (WhatsApp)" required>
+      <input type="password" id="rPass" placeholder="Contraseña" required>
+      <button type="submit" class="btn">Crear cuenta →</button>
+    </form>
+    <div class="alt">¿Ya tenés cuenta? <a onclick="openOvl('ovlLogin')">Iniciá sesión</a></div>
+    <div class="demo-note">Maqueta de demostración: completá con cualquier dato.</div>
+  </div>
+</div>
+
+<!-- VERIFICACIÓN -->
+<div class="ovl" id="ovlVerify">
+  <div class="auth">
+    <button class="back" onclick="openOvl('ovlReg')">← Volver</button>
+    <div id="vStep1">
+      <div class="llogo">📲</div>
+      <h3>Verificá tu cuenta</h3>
+      <p>Te enviamos un código por <b>WhatsApp</b> y <b>email</b> a <b id="vDest">tu contacto</b></p>
+      <form onsubmit="return doVerify(event)">
+        <input type="text" class="code-in" maxlength="6" placeholder="······">
+        <button type="submit" class="btn">Verificar ✓</button>
+      </form>
+      <div class="demo-note">Maqueta de demostración: cualquier código sirve.</div>
+    </div>
+    <div id="vStep2" style="display:none">
+      <div class="vok">✅</div>
+      <h3>¡Cuenta verificada!</h3>
+      <p>Ya podés reservar y recibir tus códigos QR por WhatsApp.</p>
+      <button class="btn" onclick="finishReg()">Hacer mi primera reserva →</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN ADMIN -->
+<div class="ovl" id="ovlAdmin">
+  <div class="auth">
+    <button class="back" onclick="closeOvls()">← Volver al sitio</button>
+    <div class="llogo">🔐</div>
+    <h3>Acceso administración</h3>
+    <p>Panel de gestión · personal y municipalidad</p>
+    <form onsubmit="return doAdmin(event)">
+      <input type="text" placeholder="Usuario o email" required>
+      <input type="password" placeholder="Contraseña" required>
+      <button type="submit" class="btn">Entrar al panel →</button>
+    </form>
+    <div class="demo-note">Maqueta de demostración: ingresá con cualquier dato.</div>
+  </div>
+</div>
+
+<!-- DASHBOARD ADMIN (demo) -->
+<div id="adminView">
+  <div class="adm-top">
+    <div class="t">🌲 Las Casuarinas · Panel de Gestión<small>Vista de ejemplo — datos de demostración</small></div>
+    <div class="ru"><span class="chip">👤 admin@lascasuarinas</span><button onclick="closeAdmin()">Cerrar sesión</button></div>
+  </div>
+  <div class="adm-wrap">
+    <div class="adm-side">
+      <div class="sl">Menú</div>
+      <a class="on">📊 Dashboard</a><a>🗓️ Reservas</a><a>🛂 Ingresos</a><a>💵 Caja</a>
+      <a>🏠 Quinchos</a><a>🏊 Pileta</a><a>⛺ Acampe</a><a>📑 Reportes</a><a>⚙️ Configuración</a>
+    </div>
+    <div class="adm-main">
+      <div class="kpis">
+        <div class="kpi"><div class="kl">Aforo ahora</div><div class="kv">312 <small style="font-size:13px;color:#999">/700</small></div></div>
+        <div class="kpi"><div class="kl">Reservas hoy</div><div class="kv">28</div></div>
+        <div class="kpi"><div class="kl">Recaudación hoy</div><div class="kv gr">$486.500</div></div>
+        <div class="kpi"><div class="kl">Pileta</div><div class="kv">64 <small style="font-size:13px;color:#999">/80</small></div></div>
+      </div>
+      <div class="prow">
+        <div class="pcard">
+          <h5>Ingresos por hora</h5>
+          <div class="bars">
+            <div class="bar" style="height:22%"></div><div class="bar" style="height:38%"></div><div class="bar" style="height:55%"></div>
+            <div class="bar" style="height:78%"></div><div class="bar" style="height:100%"></div><div class="bar" style="height:84%"></div><div class="bar" style="height:60%"></div>
+          </div>
+          <div class="bxl"><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span></div>
+        </div>
+        <div class="pcard">
+          <h5>Últimos ingresos</h5>
+          <table class="atbl">
+            <tr><th>Hora</th><th>Reserva</th><th>Pers.</th><th>Estado</th></tr>
+            <tr><td>13:42</td><td>Quincho 3 · González</td><td>4</td><td><span class="est e-ok">✓ Ingresó</span></td></tr>
+            <tr><td>13:38</td><td>Pileta · Romero</td><td>4</td><td><span class="est e-ok">✓ Ingresó</span></td></tr>
+            <tr><td>13:31</td><td>Quincho 5 · Coronel</td><td>12</td><td><span class="est e-in">En puerta</span></td></tr>
+            <tr><td>13:20</td><td>Acampe · Díaz</td><td>3</td><td><span class="est e-ok">✓ Ingresó</span></td></tr>
+            <tr><td>13:05</td><td>Quincho 3 · invitados</td><td>6</td><td><span class="est e-pen">Pago pendiente</span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="zoc">
+        <h5>Ocupación por zona</h5>
+        <div class="zrow"><span class="zn">🏠 Quinchos</span><div class="zbar"><i style="width:75%;background:#e23b3b"></i></div><span class="zv">6 / 8</span></div>
+        <div class="zrow"><span class="zn">🏊 Pileta</span><div class="zbar"><i style="width:80%;background:#2e9d63"></i></div><span class="zv">64 / 80</span></div>
+        <div class="zrow"><span class="zn">⛺ Acampe</span><div class="zbar"><i style="width:45%;background:#2b86c5"></i></div><span class="zv">18 / 40</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MIS RESERVAS (visitante logueado) -->
+<div class="ovl" id="ovlMis">
+  <div class="auth wide">
+    <button class="back" onclick="closeOvls()">← Volver al sitio</button>
+    <div class="llogo">🎟️</div>
+    <h3>Mis reservas</h3>
+    <p>Tus códigos QR para ingresar al camping</p>
+    <div class="mis-grid" id="misGrid"></div>
+    <div class="alt"><a onclick="logout()">Cerrar sesión</a></div>
+  </div>
+</div>
+
+<!-- VOLVER ARRIBA -->
+<button id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Volver arriba">↑</button>
+
+<!-- CONTACTO WHATSAPP -->
+<a id="waBtn" href="https://wa.me/5493855000000" target="_blank" rel="noopener" title="Escribinos por WhatsApp"><span class="wic">💬</span><span class="wtxt">WhatsApp</span></a>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script>
+// ── CONEXIÓN AL BACKEND ──
+// En dev (servida aparte) apunta al backend local; en producción (servida por el backend) usa el mismo origen.
+const API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:3002':'';
+const TOKK='camping_web_token', TOKN='camping_web_nombre';
+function saveSesion(token,nombre){localStorage.setItem(TOKK,token);localStorage.setItem(TOKN,nombre||'Mi cuenta');}
+function logout(){localStorage.removeItem(TOKK);localStorage.removeItem(TOKN);location.reload();}
+async function apiPost(path,body,auth){const h={'Content-Type':'application/json'};
+  if(auth){const t=localStorage.getItem(TOKK);if(t)h.Authorization='Bearer '+t;}
+  const r=await fetch(API+path,{method:'POST',headers:h,body:JSON.stringify(body)});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||'Error de conexión');return d;}
+async function apiGet(path,auth){const h={};
+  if(auth){const t=localStorage.getItem(TOKK);if(t)h.Authorization='Bearer '+t;}
+  const r=await fetch(API+path,{headers:h});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||'Error de conexión');return d;}
+// QR REAL a partir de un token (lo escanea el guardia)
+function realQR(canvasId,token){const c=document.getElementById(canvasId);if(c&&window.QRCode)QRCode.toCanvas(c,token,{width:c.width||150,margin:1,color:{dark:'#10201a',light:'#ffffff'}});}
+function tipoLabel(t){return {quincho:'Quincho',pase_pileta:'Pase pileta',pase_dia:'Pase día',acampe:'Acampe'}[t]||t;}
+
+// ── QR falso (decorativo: hero y demo de ingreso) ──
+function drawQR(id,seed){const c=document.getElementById(id);if(!c)return;const x=c.getContext('2d');
+  const S=c.width;x.fillStyle='#fff';x.fillRect(0,0,S,S);x.fillStyle='#10201a';
+  const n=15,cell=S/(n+2),off=cell;let s=seed;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){if(rnd()>0.5)x.fillRect(off+i*cell,off+j*cell,cell,cell);}
+  const f=(px,py)=>{x.fillStyle='#10201a';x.fillRect(px,py,cell*3,cell*3);x.fillStyle='#fff';
+    x.fillRect(px+cell*.6,py+cell*.6,cell*1.8,cell*1.8);x.fillStyle='#10201a';x.fillRect(px+cell*1.05,py+cell*1.05,cell*.9,cell*.9);};
+  f(off,off);f(off+(n-3)*cell,off);f(off,off+(n-3)*cell);}
+drawQR('qrHero',7);
+
+// ── nav scroll + progress ──
+const nav=document.getElementById('nav'),prog=document.getElementById('prog');
+function onScroll(){
+  nav.classList.toggle('scrolled',scrollY>30);
+  const h=document.documentElement.scrollHeight-innerHeight;
+  prog.style.width=(scrollY/h*100)+'%';
+  // parallax aurora
+  document.querySelectorAll('header .aurora').forEach((a,i)=>{a.style.transform=`translateY(${scrollY*(.06+i*.04)}px)`;});
+}
+addEventListener('scroll',onScroll,{passive:true});
+
+// ── booking ──
+let tipo='Quincho',color='#e23b3b',personas=4;
+document.querySelectorAll('.tipo').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tipo').forEach(o=>o.classList.remove('sel'));
+  b.classList.add('sel');tipo=b.dataset.t;color=b.dataset.c;});
+function pers(d){personas=Math.max(1,Math.min(50,personas+d));document.getElementById('fPers').textContent=personas;}
+function goStep(n){
+  ['p1','p2','p3','p4'].forEach((id,i)=>document.getElementById(id).classList.toggle('show',i===n-1));
+  for(let i=1;i<=4;i++){const s=document.getElementById('st'+i);if(s){s.classList.toggle('on',i===n);s.classList.toggle('done',i<n);}}
+}
+
+// Fecha por defecto = hoy (y no permite fechas pasadas)
+(function(){const fe=document.getElementById('fFecha');if(fe){const t=new Date();
+  const iso=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+  fe.value=iso;fe.min=iso;}})();
+
+// Paso 1→3: crea la reserva PENDIENTE (sin QR) y muestra el resumen de pago
+const TIPO_API={'Quincho':'quincho','Pase de día + Pileta':'pase_pileta','Acampe':'acampe'};
+let reservaActual=null;
+async function crearReserva(ev){
+  if(!localStorage.getItem(TOKK)){openOvl('ovlReg');return;}
+  const btn=ev&&ev.target; if(btn){btn.disabled=true;btn.textContent='Verificando…';}
+  try{
+    const fecha=document.getElementById('fFecha').value;
+    const data=await apiPost('/api/publico/reservas',{tipo:TIPO_API[tipo]||'pase_dia',fecha,cantidad_personas:personas},true);
+    reservaActual=data.reserva;
+    document.getElementById('pgTipo').textContent=tipo;
+    const f=fecha.split('-');document.getElementById('pgFecha').textContent=f[2]+'/'+f[1]+'/'+f[0];
+    document.getElementById('pgPers').textContent=personas;
+    document.getElementById('pgMonto').textContent='$'+Number(data.reserva.monto).toLocaleString('es-AR');
+    goStep(3);
+  }catch(err){
+    alert('No se pudo crear la reserva: '+err.message);
+    if(/sesión|iniciar/i.test(err.message))openOvl('ovlLogin');
+  }finally{ if(btn){btn.disabled=false;btn.textContent='Ir al pago →';} }
+}
+
+// Paso 3→4: paga (simulado) y RECIÉN AHÍ genera y muestra el QR
+async function pagarReserva(ev){
+  if(!reservaActual)return;
+  const btn=ev&&ev.target; if(btn){btn.disabled=true;btn.textContent='Procesando pago…';}
+  try{
+    const data=await apiPost('/api/publico/reservas/'+reservaActual.id+'/pagar',{},true);
+    goStep(4);
+    const cv=document.getElementById('qrBook');cv.classList.remove('qr-pop');void cv.offsetWidth;cv.classList.add('qr-pop');
+    realQR('qrBook',data.qr.token);
+    document.getElementById('rTipo').textContent=tipo;
+    document.getElementById('rFecha').textContent=document.getElementById('pgFecha').textContent;
+    document.getElementById('rPers').textContent=personas;
+    const esQ=tipo==='Quincho';
+    document.getElementById('rCupo').textContent=esQ?('Quincho · cupo '+reservaActual.cupo+' lugares'):('Personas en este QR: '+personas);
+    setTimeout(()=>{document.getElementById('rBar').style.width=(esQ?(personas/reservaActual.cupo*100):(personas/8*100))+'%';},100);
+  }catch(err){alert('No se pudo procesar el pago: '+err.message);}
+  finally{ if(btn){btn.disabled=false;btn.textContent='💳 Pagar ahora';} }
+}
+
+// ── reveal + count-up + stats ──
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+function countUp(el){const t=+el.dataset.count;let c=0;const step=Math.max(1,Math.ceil(t/40));
+  const tick=()=>{c=Math.min(t,c+step);el.textContent=c;if(c<t)requestAnimationFrame(tick);};tick();}
+const sio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){
+  e.target.querySelectorAll('.count').forEach(countUp);e.target.querySelectorAll('.stat').forEach((s,i)=>setTimeout(()=>s.classList.add('in'),i*120));
+  sio.unobserve(e.target);}}),{threshold:.3});
+sio.observe(document.getElementById('stats'));
+
+// duplicar ticker para loop infinito
+const tk=document.getElementById('ticker');tk.innerHTML+=tk.innerHTML;
+
+// ── aforo vivo ──
+let af=312;setInterval(()=>{af=Math.max(280,Math.min(420,af+Math.floor(Math.random()*7)-3));
+  const el=document.querySelector('#stats .count');if(el&&el.dataset.count==='312')el.textContent=af;},3500);
+
+// ── AUTENTICACIÓN (visitante + admin) ──
+let logged=false, regName='';
+function openOvl(id){closeOvls();document.getElementById(id).classList.add('show');document.body.style.overflow='hidden';
+  if(id==='ovlVerify'){document.getElementById('vStep1').style.display='block';document.getElementById('vStep2').style.display='none';}}
+function closeOvls(){document.querySelectorAll('.ovl').forEach(o=>o.classList.remove('show'));document.body.style.overflow='';}
+// cerrar al click en el fondo
+document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeOvls();}));
+
+function reserveCTA(){ if(logged){closeOvls();location.hash='#reservar';} else {openOvl('ovlReg');} }
+function needAuth(){ if(!logged){openOvl('ovlReg');return;} goStep(2); }
+
+async function doLogin(e){e.preventDefault();const f=e.target;
+  try{const d=await apiPost('/api/publico/login',{identificador:f[0].value.trim(),password:f[1].value});
+    saveSesion(d.token,d.cliente.nombre);setLogged(d.cliente.nombre);closeOvls();location.hash='#reservar';}
+  catch(err){alert(err.message);}return false;}
+async function doRegister(e){e.preventDefault();
+  const nombre=(document.getElementById('rNombre').value||'').trim();
+  try{const d=await apiPost('/api/publico/registro',{
+      nombre, apellido:document.getElementById('rApellido').value.trim(),
+      email:document.getElementById('rEmail').value.trim(), telefono:document.getElementById('rTel').value.trim(),
+      password:document.getElementById('rPass').value});
+    saveSesion(d.token,d.cliente.nombre);regName=d.cliente.nombre;
+    document.getElementById('vDest').textContent=(document.getElementById('rTel').value||'').trim()||'tu WhatsApp';
+    openOvl('ovlVerify');}
+  catch(err){alert(err.message); if(/Ya hay una cuenta/i.test(err.message))openOvl('ovlLogin');}
+  return false;}
+function doVerify(e){e.preventDefault();
+  document.getElementById('vStep1').style.display='none';document.getElementById('vStep2').style.display='block';return false;}
+function finishReg(){setLogged(regName);closeOvls();location.hash='#reservar';}
+function setLogged(n){logged=true;
+  document.getElementById('navCta').innerHTML='<a class="uchip" onclick="openMis()" style="cursor:pointer" title="Mis reservas">👤 '+n+'</a><a class="btn btn-lime" onclick="reserveCTA()">Reservar →</a>';
+  const lh=document.getElementById('lockHint');if(lh){lh.innerHTML='✅ <span>¡Hola, '+n+'! Ya podés reservar.</span>';
+    lh.style.background='rgba(46,157,99,.08)';lh.style.borderColor='#b6e3c8';lh.style.color='#1f7a48';}}
+
+// ── ADMIN ──
+function doAdmin(e){e.preventDefault();closeOvls();document.getElementById('adminView').classList.add('show');document.body.style.overflow='hidden';return false;}
+function closeAdmin(){document.getElementById('adminView').classList.remove('show');document.body.style.overflow='';}
+
+// ── DEMO DE INGRESO (escena animada por zona) ──
+function hexA(h,a){const n=parseInt(h.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
+const ZONES={
+  quincho:{c:'#e23b3b',band:'🎟️ Pulsera roja',qr:'Quincho 3',seed:5},
+  pileta :{c:'#2e9d63',band:'🎟️ Pulsera verde',qr:'Pase Pileta',seed:11},
+  acampe :{c:'#2b86c5',band:'🎟️ Pulsera azul',qr:'Acampe',seed:17},
+};
+const demoPhases=['enter','scan','band','depart'];
+let dpi=0, demoTimer=null, curZone='quincho';
+function demoStep(i){
+  const sc=document.getElementById('scene');if(!sc)return;
+  const zc=' z-'+curZone;
+  if(i===0){sc.className='scene reset'+zc;void sc.offsetWidth;} // reposiciona el auto fuera de cuadro sin transición
+  sc.className='scene '+demoPhases[i]+zc;
+  document.querySelectorAll('.dcap').forEach((c,k)=>c.classList.toggle('act',k===i));
+}
+function demoLoop(){demoStep(dpi);dpi=(dpi+1)%4;}
+function startDemo(){clearInterval(demoTimer);dpi=0;demoLoop();demoTimer=setInterval(demoLoop,2200);}
+function selectZone(z){
+  curZone=z;const cfg=ZONES[z];
+  document.querySelectorAll('.zt').forEach(el=>{const on=el.dataset.z===z;el.classList.toggle('on',on);
+    if(on){el.style.background=hexA(cfg.c,.22);el.style.borderColor=hexA(cfg.c,.6);el.style.color='#fff';}
+    else{el.style.background='';el.style.borderColor='';el.style.color='';}});
+  const band=document.querySelector('.dband');
+  band.textContent=cfg.band;band.style.background=cfg.c;band.style.boxShadow='0 8px 18px '+hexA(cfg.c,.55);
+  document.querySelector('.dqr .ph2').textContent=cfg.qr;
+  drawQR('qrDemo',cfg.seed);
+  startDemo();
+}
+const scn=document.getElementById('scene');
+if(scn){
+  // arranca (en quincho) cuando la escena entra en viewport
+  const dio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!scn.dataset.run){scn.dataset.run='1';selectZone('quincho');}}),{threshold:.3});
+  dio.observe(scn);}
+
+// ── FAQ (acordeón) ──
+document.querySelectorAll('.faq .q').forEach(q=>q.addEventListener('click',()=>q.parentElement.classList.toggle('open')));
+
+// ── MENÚ MOBILE ──
+function toggleMnav(){const m=document.getElementById('mnav');const o=m.classList.toggle('open');document.body.style.overflow=o?'hidden':'';}
+
+// ── VOLVER ARRIBA ──
+const toTop=document.getElementById('toTop');
+addEventListener('scroll',()=>{toTop.classList.toggle('show',scrollY>620);},{passive:true});
+
+// ── MIS RESERVAS (desde el backend, QR reales) ──
+async function openMis(){
+  const c=document.getElementById('misGrid');
+  c.innerHTML='<p style="color:rgba(255,255,255,.6);text-align:center;padding:24px">Cargando…</p>';
+  openOvl('ovlMis');
+  try{
+    const arr=await apiGet('/api/publico/mis-reservas',true);
+    if(!arr.length){c.innerHTML='<p style="color:rgba(255,255,255,.6);text-align:center;padding:24px">Todavía no tenés reservas. ¡Hacé la primera!</p>';return;}
+    c.innerHTML='';
+    arr.forEach((r,i)=>{const col=r.zona?r.zona.color:'#888';const d=document.createElement('div');d.className='misr';
+      d.innerHTML='<canvas width="76" height="76" id="mq'+i+'"></canvas><div class="mi"><b>'+r.numero+' · '+tipoLabel(r.tipo)+'</b><p>'+r.fecha+' · '+r.cantidad_personas+' personas · '+r.estado+'</p><span class="pz" style="background:'+col+'">🎟️ '+(r.zona?r.zona.nombre:'')+'</span></div>';
+      c.appendChild(d);if(r.qr)realQR('mq'+i,r.qr);});
+  }catch(err){c.innerHTML='<p style="color:#f9b;text-align:center;padding:24px">'+err.message+'</p>';}
+}
+
+// ── auto-login si hay sesión guardada ──
+(function(){const t=localStorage.getItem(TOKK);if(t)setLogged(localStorage.getItem(TOKN)||'Mi cuenta');})();
+</script>
+</body>
+</html>
