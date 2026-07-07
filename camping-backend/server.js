@@ -38,6 +38,16 @@ import usuariosRoutes from "./routes/usuarios.js";
 import reportesRoutes from "./routes/reportes.js";
 
 dotenv.config();
+
+// Chequeo de arranque: sin JWT_SECRET no se pueden firmar sesiones de forma segura.
+if (!process.env.JWT_SECRET) {
+  console.error("⛔ Falta JWT_SECRET. Definí uno largo y aleatorio en el entorno.");
+  process.exit(1);
+}
+if (process.env.JWT_SECRET.length < 16) {
+  console.warn("⚠️ JWT_SECRET es corto (<16 caracteres). Recomendado: cadena larga y aleatoria.");
+}
+
 const app = express();
 
 // ── Seguridad (helmet) ──
@@ -102,7 +112,10 @@ app.use("/api/reportes", reportesRoutes);
 app.use("/api", (err, req, res, next) => {
   console.error("🔥 Error no controlado en", req.method, req.originalUrl, "->", err?.stack || err);
   if (res.headersSent) return next(err);
-  res.status(err?.status || 500).json({ message: "Error del servidor: " + (err?.message || "desconocido") });
+  const status = err?.status || 500;
+  // No filtrar detalles internos al cliente: en 500 va mensaje genérico, el detalle queda en los logs.
+  const message = status < 500 ? (err?.message || "Solicitud inválida") : "Error del servidor. Probá de nuevo en un momento.";
+  res.status(status).json({ message });
 });
 
 // ── Frontends (monolito): el backend sirve la web pública y el panel interno ──

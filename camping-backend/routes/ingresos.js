@@ -1,4 +1,6 @@
 import express from "express";
+import { Op } from "sequelize";
+import { sequelize } from "../database.js";
 import Ingreso from "../models/Ingreso.js";
 import CodigoQR from "../models/CodigoQR.js";
 import Reserva from "../models/Reserva.js";
@@ -69,7 +71,7 @@ router.post("/escanear", authMiddleware, hasRole(["admin", "guardia"]), async (r
     if (qr.hora_hasta && ahora > qr.hora_hasta)
       return res.status(409).json({ ok: false, message: `⏳ Acceso hasta las ${qr.hora_hasta}` });
 
-    // Cupo
+    // Cupo — chequeo previo (para dar un mensaje claro)
     const restante = qr.cupo_total - qr.cupo_usado;
     if (qr.estado === "agotado" || restante <= 0)
       return res.status(409).json({ ok: false, message: "🚫 Cupo agotado — no quedan lugares" });
@@ -80,18 +82,27 @@ router.post("/escanear", authMiddleware, hasRole(["admin", "guardia"]), async (r
         cupo_restante: restante,
       });
 
-    // ── Registrar el ingreso y descontar el cupo ──
+    // ── Descuento ATÓMICO del cupo (cantidad es un entero validado arriba) ──
+    // Solo descuenta si REALMENTE queda lugar → dos escaneos simultáneos del mismo QR
+    // no pueden pasar del cupo total.
+    const [afectadas] = await CodigoQR.update(
+      { cupo_usado: sequelize.literal(`cupo_usado + ${cantidad}`) },
+      { where: { id: qr.id, [Op.and]: sequelize.literal(`cupo_usado + ${cantidad} <= cupo_total`) } }
+    );
+    if (!afectadas)
+      return res.status(409).json({ ok: false, message: "🚫 Cupo agotado — no quedan lugares" });
+
+    // Releer el cupo real y marcar agotado si se llenó
+    await qr.reload();
+    if (qr.cupo_usado >= qr.cupo_total && qr.estado !== "agotado") await qr.update({ estado: "agotado" });
+    const nuevoUsado = qr.cupo_usado;
+
+    // Registrar el ingreso
     const ingreso = await Ingreso.create({
       reserva_id: reserva ? reserva.id : null,
       codigo_qr_id: qr.id,
       cantidad_personas: cantidad,
       registrado_por_id: req.user.id,
-    });
-
-    const nuevoUsado = qr.cupo_usado + cantidad;
-    await qr.update({
-      cupo_usado: nuevoUsado,
-      estado: nuevoUsado >= qr.cupo_total ? "agotado" : "activo",
     });
 
     const zona = reserva ? reserva.zona : null;
