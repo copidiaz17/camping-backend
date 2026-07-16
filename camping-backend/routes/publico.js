@@ -185,7 +185,7 @@ router.post("/reservas", clienteAuth, async (req, res) => {
         cantidad_personas: reserva.cantidad_personas, cupo: reserva.cupo, monto: reserva.monto,
         recargo: reserva.recargo, monto_estacionamiento: reserva.monto_estacionamiento,
       },
-      desglose: { monto_ingreso: calc.monto_ingreso, recargo: calc.recargo, estacionamiento: calc.monto_estacionamiento, finde: calc.finde, vehiculos: calc.vehiculosDetalle },
+      desglose: { base_ingreso: calc.base_ingreso, base_estacionamiento: calc.base_estacionamiento, recargo: calc.recargo, finde: calc.finde, vehiculos: calc.vehiculosDetalle },
       zona: { nombre: zona.nombre, color: zona.color },
       pago_pendiente: true,
     });

@@ -54,47 +54,51 @@ export async function calcularMontoReserva({
   const finde = await esFinDeOFeriado(fecha);
   const rec = finde ? precio("recargo_finde") : 0;
 
-  let montoIngreso = 0;
-  let recargoTotal = 0;
+  // Montos BASE (sin recargo) y el recargo por separado, para un desglose claro.
+  let baseIngreso = 0;
+  let recargoIngreso = 0;
   let cupo = Number(cantidad_personas) || 1;
 
   if (tipo === "quincho") {
     const clave = quincho?.tamano === "mediano" ? "quincho_mediano" : "quincho_grande";
-    montoIngreso = precio(clave) + rec;
-    recargoTotal += rec;
+    baseIngreso = precio(clave);
+    recargoIngreso = rec;
     cupo = quincho?.capacidad || cupo;
   } else if (tipo === "acampe") {
-    montoIngreso = precio("acampe") + rec; // por carpa (fijo por reserva)
-    recargoTotal += rec;
+    baseIngreso = precio("acampe"); // por carpa (fijo por reserva)
+    recargoIngreso = rec;
     cupo = Number(cantidad_personas) || 1;
   } else if (tipo === "asador") {
-    montoIngreso = precio("asador") + rec;
-    recargoTotal += rec;
+    baseIngreso = precio("asador");
+    recargoIngreso = rec;
     cupo = Number(cantidad_personas) || 1;
   } else if (tipo === "pileta") {
     const ninos = Number(cantidad_ninos) || 0;
     const adultos = Number(cantidad_adultos) || 0;
-    montoIngreso = ninos * (precio("pileta_nino") + rec) + adultos * (precio("pileta_adulto") + rec);
-    recargoTotal += (ninos + adultos) * rec;
+    baseIngreso = ninos * precio("pileta_nino") + adultos * precio("pileta_adulto");
+    recargoIngreso = (ninos + adultos) * rec; // el recargo aplica por persona
     cupo = ninos + adultos || 1;
   }
 
-  // Estacionamiento: cada vehículo suma su precio + recargo (el recargo aplica a todo)
+  // Estacionamiento: cada vehículo suma su precio; el recargo aplica también a los vehículos.
   const vehiculosDetalle = [];
-  let montoEstacionamiento = 0;
+  let baseEstacionamiento = 0;
+  let recargoEstac = 0;
   for (const clave of vehiculos || []) {
     if (!T[clave]) continue;
-    const p = T[clave].precio + rec;
-    montoEstacionamiento += p;
-    recargoTotal += rec;
-    vehiculosDetalle.push({ tipo: clave, descripcion: T[clave].descripcion, precio: p });
+    baseEstacionamiento += T[clave].precio;
+    recargoEstac += rec;
+    vehiculosDetalle.push({ tipo: clave, descripcion: T[clave].descripcion, precio: T[clave].precio + rec });
   }
 
+  const recargoTotal = recargoIngreso + recargoEstac;
   return {
-    monto: montoIngreso + montoEstacionamiento,
-    monto_ingreso: montoIngreso,
-    monto_estacionamiento: montoEstacionamiento,
-    recargo: recargoTotal,
+    monto: baseIngreso + baseEstacionamiento + recargoTotal, // total final
+    base_ingreso: baseIngreso,                 // ingreso SIN recargo
+    base_estacionamiento: baseEstacionamiento, // estacionamiento SIN recargo
+    monto_ingreso: baseIngreso + recargoIngreso,
+    monto_estacionamiento: baseEstacionamiento + recargoEstac,
+    recargo: recargoTotal,                     // recargo total (una sola línea)
     cupo,
     finde,
     vehiculosDetalle,

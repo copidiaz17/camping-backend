@@ -735,8 +735,8 @@ footer .fcol p{margin-bottom:4px;}
             <div class="pago-row"><span>Fecha</span><b id="pgFecha">—</b></div>
             <div class="pago-row"><span>Detalle</span><b id="pgDet">—</b></div>
             <div class="pago-row"><span>Ingreso</span><b id="pgIngreso">$0</b></div>
-            <div class="pago-row" id="rowRecargo"><span>Recargo finde/feriado</span><b id="pgRecargo">$0</b></div>
             <div class="pago-row" id="rowEstac"><span>Estacionamiento</span><b id="pgEstac">$0</b></div>
+            <div class="pago-row" id="rowRecargo"><span>Recargo finde/feriado</span><b id="pgRecargo">$0</b></div>
             <div class="pago-row total"><span>Total a pagar</span><b id="pgMonto">$0</b></div>
           </div>
           <p class="qr-note">🔒 El QR se genera <b>una vez confirmado el pago</b>. <i>(Demo: pago simulado — luego se integra MercadoPago.)</i></p>
@@ -1395,9 +1395,9 @@ async function crearReserva(ev){
     document.getElementById('pgTipo').textContent=tipoLabelSel;
     const f=fecha.split('-');document.getElementById('pgFecha').textContent=f[2]+'/'+f[1]+'/'+f[0];
     document.getElementById('pgDet').textContent=detalleTexto();
-    setRow('pgIngreso',dg.monto_ingreso);setRow('pgRecargo',dg.recargo);setRow('pgEstac',dg.estacionamiento);
+    setRow('pgIngreso',dg.base_ingreso);setRow('pgEstac',dg.base_estacionamiento);setRow('pgRecargo',dg.recargo);
+    document.getElementById('rowEstac').style.display=(dg.base_estacionamiento>0)?'':'none';
     document.getElementById('rowRecargo').style.display=(dg.recargo>0)?'':'none';
-    document.getElementById('rowEstac').style.display=(dg.estacionamiento>0)?'':'none';
     document.getElementById('pgMonto').textContent='$'+Number(data.reserva.monto).toLocaleString('es-AR');
     goStep(3);
   }catch(err){
