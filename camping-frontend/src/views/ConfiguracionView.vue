@@ -24,7 +24,7 @@
           <tr><th class="py-2">Tipo</th><th>Descripción</th><th>Condición</th><th>Temporada</th><th class="text-right">Precio</th><th></th></tr>
         </thead>
         <tbody>
-          <tr v-for="t in tarifas" :key="t.id" class="border-b last:border-0" :class="{ 'opacity-40': !t.activo }">
+          <tr v-for="t in tarifasVisibles" :key="t.id" class="border-b last:border-0" :class="{ 'opacity-40': !t.activo }">
             <td class="py-2 font-medium">{{ TIPOS[t.tipo] || t.tipo }}</td>
             <td>{{ t.descripcion || "—" }}</td>
             <td class="capitalize">{{ t.condicion }}</td>
@@ -138,7 +138,17 @@
 import { ref, reactive, computed, onMounted } from "vue";
 import { axios, auth, pesos } from "../utils/api.js";
 
-const TIPOS = { pase_dia: "Pase día", pase_pileta: "Pase pileta", quincho: "Quincho", acampe: "Acampe" };
+const TIPOS = {
+  quincho_grande: "Quincho grande (50)", quincho_mediano: "Quincho mediano (30)",
+  acampe: "Acampe (carpa)", asador: "Asador",
+  pileta_nino: "Pileta — Niño", pileta_adulto: "Pileta — Adulto",
+  veh_camion: "Vehículo — Camión/Colectivo", veh_motorhome: "Vehículo — Motor home",
+  veh_casa_rodante: "Vehículo — Casa rodante", veh_automovil: "Vehículo — Automóvil",
+  veh_motocicleta: "Vehículo — Motocicleta", veh_moto_agua: "Vehículo — Motos agua/Lanchas",
+  recargo_finde: "Recargo finde/feriado",
+  // legacy (reservas viejas)
+  pase_dia: "Pase día", pase_pileta: "Pase pileta", quincho: "Quincho (viejo)",
+};
 const TEMP = { todo_el_anio: "Todo el año", alta: "Alta", baja: "Baja" };
 
 const tabs = [
@@ -152,12 +162,15 @@ const tarifas = ref([]);
 const quinchos = ref([]);
 const zonas = ref([]);
 
+// Solo las tarifas vigentes (oculta las viejas desactivadas: pase día, pase pileta, etc.)
+const tarifasVisibles = computed(() => tarifas.value.filter((t) => t.activo));
+
 const modal = ref("");
 const guardando = ref(false);
 const errorModal = ref("");
 const editId = ref(null);
 
-const fTarifa = reactive({ tipo: "pase_dia", precio: 0, condicion: "general", temporada: "todo_el_anio", descripcion: "" });
+const fTarifa = reactive({ tipo: "quincho_grande", precio: 0, condicion: "general", temporada: "todo_el_anio", descripcion: "" });
 const fQuincho = reactive({ nombre: "", capacidad: 50, descripcion: "" });
 const fZona = reactive({ nombre: "", color: "#2e7d4f", aforo_max: 0 });
 
@@ -180,7 +193,7 @@ async function cargar() {
 // ── Tarifas ──
 function nuevaTarifa() {
   editId.value = null;
-  Object.assign(fTarifa, { tipo: "pase_dia", precio: 0, condicion: "general", temporada: "todo_el_anio", descripcion: "" });
+  Object.assign(fTarifa, { tipo: "quincho_grande", precio: 0, condicion: "general", temporada: "todo_el_anio", descripcion: "" });
   errorModal.value = "";
   modal.value = "tarifa";
 }

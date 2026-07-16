@@ -163,6 +163,8 @@ const PORT = process.env.PORT || 3002;
       "ALTER TABLE reservas ADD COLUMN monto_estacionamiento DECIMAL(12,2) NOT NULL DEFAULT 0",
       "ALTER TABLE quinchos ADD COLUMN tamano ENUM('grande','mediano') NOT NULL DEFAULT 'grande'",
       "ALTER TABLE ingresos ADD COLUMN reserva_item_id INT NULL",
+      // Desactiva tarifas viejas (pase_dia, pase_pileta, quincho suelto) que no son del cuadro 6582
+      "UPDATE tarifas SET activo = 0 WHERE tipo NOT IN ('quincho_grande','quincho_mediano','acampe','asador','pileta_nino','pileta_adulto','veh_camion','veh_motorhome','veh_casa_rodante','veh_automovil','veh_motocicleta','veh_moto_agua','recargo_finde')",
     ];
     for (const sql of migraciones) {
       try {
