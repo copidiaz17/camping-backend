@@ -12,8 +12,8 @@ import Asador from "../models/Asador.js";
 import Tarifa from "../models/Tarifa.js";
 import CodigoQR from "../models/CodigoQR.js";
 import {
-  ZONA_POR_TIPO, fechaEsPasada, siguienteNumero, quinchosLibres, quinchoEstaLibre,
-  asadoresLibres, asadorEstaLibre, aforoUsado, generarQR, calcularMontoReserva,
+  ZONA_POR_TIPO, fechaEsPasada, quinchosLibres, asadoresLibres,
+  generarQR, normalizarItems, crearReservaCompleta,
 } from "../utils/reservas.js";
 import { enviarQRReserva } from "../utils/mailer.js";
 
@@ -102,94 +102,35 @@ router.get("/disponibilidad", async (req, res) => {
 });
 
 // ── POST /api/publico/reservas ── (visitante logueado)
-// Crea la reserva PENDIENTE DE PAGO. El QR se genera recién al pagar (POST /reservas/:id/pagar).
-// Body: { tipo, fecha, cantidad_personas?, cantidad_ninos?, cantidad_adultos?, quincho_id?, asador_id?, vehiculos?[] }
+// Crea la reserva PENDIENTE DE PAGO con uno o varios conceptos. El QR se genera al pagar.
+// Body: { fecha, items:[{tipo, quincho_id?, asador_id?, cantidad_personas?, cantidad_ninos?, cantidad_adultos?}], vehiculos?[] }
+// (También acepta el formato viejo de 1 concepto: { tipo, fecha, cantidad_personas, ... })
 router.post("/reservas", clienteAuth, async (req, res) => {
   try {
-    const {
-      tipo, fecha, cantidad_personas = 1, cantidad_ninos = 0, cantidad_adultos = 0,
-      quincho_id = null, asador_id = null, vehiculos = [],
-    } = req.body;
-    if (!tipo || !fecha) return res.status(400).json({ message: "Faltan tipo o fecha" });
-    if (!ZONA_POR_TIPO[tipo]) return res.status(400).json({ message: "Tipo de reserva inválido" });
+    const { fecha, vehiculos = [] } = req.body;
+    if (!fecha) return res.status(400).json({ message: "Falta la fecha" });
     if (fechaEsPasada(fecha)) return res.status(400).json({ message: "Esa fecha ya pasó. Elegí una fecha de hoy en adelante." });
 
-    const zona = await Zona.findOne({ where: { nombre: ZONA_POR_TIPO[tipo] } });
-    if (!zona) return res.status(400).json({ message: `No existe la zona "${ZONA_POR_TIPO[tipo]}"` });
-
-    let quinchoIdFinal = null;
-    let asadorIdFinal = null;
-    let quinchoSel = null;
-
-    if (tipo === "quincho") {
-      let quincho = quincho_id ? await Quincho.findByPk(quincho_id) : null;
-      if (quincho && !(await quinchoEstaLibre(quincho.id, fecha)))
-        return res.status(409).json({ message: `El ${quincho.nombre} ya está reservado para esa fecha` });
-      if (!quincho) {
-        const libres = (await quinchosLibres(fecha)).filter((q) => q.libre);
-        if (!libres.length) return res.status(409).json({ message: "No hay quinchos disponibles para esa fecha" });
-        quincho = await Quincho.findByPk(libres[0].id);
-      }
-      quinchoSel = quincho;
-      quinchoIdFinal = quincho.id;
-    } else if (tipo === "asador") {
-      let asador = asador_id ? await Asador.findByPk(asador_id) : null;
-      if (asador && !(await asadorEstaLibre(asador.id, fecha)))
-        return res.status(409).json({ message: `El ${asador.nombre} ya está reservado para esa fecha` });
-      if (!asador) {
-        const libres = (await asadoresLibres(fecha)).filter((a) => a.libre);
-        if (!libres.length) return res.status(409).json({ message: "No hay asadores disponibles para esa fecha" });
-        asador = await Asador.findByPk(libres[0].id);
-      }
-      asadorIdFinal = asador.id;
-    } else if (tipo === "pileta") {
-      if ((Number(cantidad_ninos) || 0) + (Number(cantidad_adultos) || 0) < 1)
-        return res.status(400).json({ message: "Indicá al menos una persona (niños o adultos) para la pileta" });
-      if (zona.aforo_max > 0) {
-        const usado = await aforoUsado(zona.id, fecha);
-        const personas = (Number(cantidad_ninos) || 0) + (Number(cantidad_adultos) || 0);
-        if (usado + personas > zona.aforo_max)
-          return res.status(409).json({ message: `No hay cupo en ${zona.nombre} para esa fecha (quedan ${Math.max(0, zona.aforo_max - usado)} lugares)` });
-      }
-    } else if (zona.aforo_max > 0) { // acampe
-      const usado = await aforoUsado(zona.id, fecha);
-      const personas = Number(cantidad_personas) || 1;
-      if (usado + personas > zona.aforo_max)
-        return res.status(409).json({ message: `No hay cupo en ${zona.nombre} para esa fecha (quedan ${Math.max(0, zona.aforo_max - usado)} lugares)` });
-    }
-
-    // ── Cálculo del monto (única fuente de verdad) ──
-    const calc = await calcularMontoReserva({
-      tipo, fecha, cantidad_personas, cantidad_ninos, cantidad_adultos, quincho: quinchoSel, vehiculos,
+    const items = normalizarItems(req.body);
+    const { reserva, prep } = await crearReservaCompleta({
+      items, vehiculos, fecha, cliente_id: req.clienteId, estado: "pendiente", estado_pago: "pendiente",
     });
-
-    const numero = await siguienteNumero();
-    const reserva = await Reserva.create({
-      numero, tipo, zona_id: zona.id, quincho_id: quinchoIdFinal, asador_id: asadorIdFinal, cliente_id: req.clienteId,
-      fecha,
-      cantidad_personas: tipo === "pileta" ? (Number(cantidad_ninos) || 0) + (Number(cantidad_adultos) || 0) : (Number(cantidad_personas) || 1),
-      cantidad_ninos: Number(cantidad_ninos) || 0,
-      cantidad_adultos: Number(cantidad_adultos) || 0,
-      cupo: calc.cupo, monto: calc.monto, recargo: calc.recargo, monto_estacionamiento: calc.monto_estacionamiento,
-      estado: "pendiente", estado_pago: "pendiente", // ⚠️ el QR se genera al pagar
-    });
-
-    // Vehículos (estacionamiento)
-    for (const v of calc.vehiculosDetalle) {
-      await ReservaVehiculo.create({ reserva_id: reserva.id, tipo: v.tipo, descripcion: v.descripcion, precio: v.precio });
-    }
 
     res.status(201).json({
-      reserva: {
-        id: reserva.id, numero: reserva.numero, tipo: reserva.tipo, fecha: reserva.fecha,
-        cantidad_personas: reserva.cantidad_personas, cupo: reserva.cupo, monto: reserva.monto,
-        recargo: reserva.recargo, monto_estacionamiento: reserva.monto_estacionamiento,
+      reserva: { id: reserva.id, numero: reserva.numero, tipo: reserva.tipo, fecha: reserva.fecha, cupo: reserva.cupo, monto: reserva.monto },
+      desglose: {
+        items: prep.itemsData.map((i) => ({ tipo: i.tipo, zona: i._zona.nombre, color: i._zona.color, base: i.base_monto, cupo: i.cupo_total })),
+        base_estacionamiento: prep.baseEstac,
+        estacionamiento: prep.montoEstac,
+        vehiculos: prep.vehiculosDetalle,
+        recargo: prep.recargoTotal,
+        finde: prep.finde,
+        total: prep.montoTotal,
       },
-      desglose: { base_ingreso: calc.base_ingreso, base_estacionamiento: calc.base_estacionamiento, recargo: calc.recargo, finde: calc.finde, vehiculos: calc.vehiculosDetalle },
-      zona: { nombre: zona.nombre, color: zona.color },
       pago_pendiente: true,
     });
   } catch (err) {
+    if (err && err.status) return res.status(err.status).json({ message: err.message });
     console.error("Error creando reserva pública:", err);
     res.status(500).json({ message: "Error al crear la reserva" });
   }

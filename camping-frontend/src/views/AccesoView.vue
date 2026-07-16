@@ -36,39 +36,57 @@
           Esperando escaneo…
         </div>
 
-        <!-- Paso 2: el QR se escaneó → cargar cuántos entran -->
+        <!-- Paso 2: el QR se escaneó → (elegir zona si hay varias) y cargar cuántos entran -->
         <div v-else-if="preview && !resultado" class="card h-full min-h-[300px] flex flex-col">
           <div class="text-center">
-            <div class="inline-flex items-center gap-2 text-lg font-semibold px-4 py-2 rounded-full text-white"
-                 :style="{ background: preview.pulsera?.color || '#888' }">
-              Pulsera {{ preview.pulsera?.zona }}
-            </div>
-            <div class="mt-3 text-gray-700">
-              <div class="font-semibold">{{ preview.reserva?.numero }} · {{ preview.reserva?.cliente }}</div>
-              <div class="text-sm text-gray-500">{{ tipoLabel(preview.reserva?.tipo) }} · {{ preview.reserva?.fecha }}</div>
-            </div>
-            <div class="mt-3 text-sm text-gray-600">
-              Quedan <b class="text-monte-600 text-lg">{{ preview.cupo?.restante }}</b> de {{ preview.cupo?.total }} lugares
-            </div>
+            <div class="font-semibold text-gray-800">{{ preview.reserva?.numero }} · {{ preview.reserva?.cliente }}</div>
+            <div class="text-sm text-gray-500">{{ preview.reserva?.fecha }}</div>
           </div>
 
-          <!-- Cargar cantidad -->
-          <div v-if="preview.cupo?.restante > 0" class="mt-5 border-t pt-4">
-            <label class="label">¿Cuántas personas ingresan ahora?</label>
-            <div class="flex items-center justify-center gap-3 mt-2">
-              <button class="btn-ghost text-2xl px-4" @click="cantidad = Math.max(1, cantidad - 1)">−</button>
-              <input v-model.number="cantidad" type="number" min="1" :max="preview.cupo.restante"
-                     class="input text-center text-2xl font-bold w-24" />
-              <button class="btn-ghost text-2xl px-4" @click="cantidad = Math.min(preview.cupo.restante, cantidad + 1)">＋</button>
+          <!-- Varios conceptos: el guardia elige a qué zona ingresa -->
+          <div v-if="preview.items && preview.items.length > 1 && !itemElegido" class="mt-5 border-t pt-4">
+            <label class="label text-center block mb-2">Reserva con varias zonas — ¿a cuál ingresa?</label>
+            <div class="grid gap-2">
+              <button v-for="it in preview.items" :key="it.id"
+                      class="flex items-center justify-between px-4 py-3 rounded-lg text-white font-semibold disabled:opacity-50"
+                      :style="{ background: it.color || '#888' }"
+                      :disabled="it.cupo.restante <= 0"
+                      @click="elegirItem(it)">
+                <span>🎟️ Pulsera {{ it.zona }}</span>
+                <span class="text-sm">quedan {{ it.cupo.restante }}/{{ it.cupo.total }}</span>
+              </button>
             </div>
-            <button class="btn-primary w-full mt-4" :disabled="validando" @click="confirmar">
-              Confirmar ingreso de {{ cantidad }} {{ cantidad === 1 ? "persona" : "personas" }} →
-            </button>
-            <button class="btn-ghost w-full mt-2" @click="reiniciar">Cancelar</button>
+            <button class="btn-ghost w-full mt-3" @click="reiniciar">Cancelar</button>
           </div>
-          <div v-else class="mt-5 border-t pt-4 text-center">
-            <div class="text-red-600 font-semibold">🚫 Cupo agotado — no quedan lugares</div>
-            <button class="btn-ghost w-full mt-3" @click="reiniciar">Escanear otro</button>
+
+          <!-- Concepto único o ya elegido: cargar cantidad -->
+          <div v-else class="mt-5">
+            <div class="text-center">
+              <div class="inline-flex items-center gap-2 text-lg font-semibold px-4 py-2 rounded-full text-white"
+                   :style="{ background: pulseraActiva.color || '#888' }">
+                Pulsera {{ pulseraActiva.zona }}
+              </div>
+              <div class="mt-3 text-sm text-gray-600">
+                Quedan <b class="text-monte-600 text-lg">{{ cupoActivo.restante }}</b> de {{ cupoActivo.total }} lugares
+              </div>
+            </div>
+            <div v-if="cupoActivo.restante > 0" class="mt-5 border-t pt-4">
+              <label class="label">¿Cuántas personas ingresan ahora?</label>
+              <div class="flex items-center justify-center gap-3 mt-2">
+                <button class="btn-ghost text-2xl px-4" @click="cantidad = Math.max(1, cantidad - 1)">−</button>
+                <input v-model.number="cantidad" type="number" min="1" :max="cupoActivo.restante"
+                       class="input text-center text-2xl font-bold w-24" />
+                <button class="btn-ghost text-2xl px-4" @click="cantidad = Math.min(cupoActivo.restante, cantidad + 1)">＋</button>
+              </div>
+              <button class="btn-primary w-full mt-4" :disabled="validando" @click="confirmar">
+                Confirmar ingreso de {{ cantidad }} {{ cantidad === 1 ? "persona" : "personas" }} →
+              </button>
+              <button class="btn-ghost w-full mt-2" @click="reiniciar">Cancelar</button>
+            </div>
+            <div v-else class="mt-5 border-t pt-4 text-center">
+              <div class="text-red-600 font-semibold">🚫 Cupo agotado — no quedan lugares</div>
+              <button class="btn-ghost w-full mt-3" @click="reiniciar">Escanear otro</button>
+            </div>
           </div>
         </div>
 
@@ -101,7 +119,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { Html5Qrcode } from "html5-qrcode";
 import { axios, auth } from "../utils/api.js";
 
@@ -110,9 +128,28 @@ const cantidad = ref(1);
 const tokenManual = ref("");
 const preview = ref(null); // datos del QR escaneado (paso 2)
 const resultado = ref(null); // resultado final del ingreso (paso 3)
+const itemElegido = ref(null); // concepto elegido cuando la reserva tiene varias zonas
 const validando = ref(false);
 const camError = ref("");
 let tokenActual = ""; // token del QR en curso
+
+// Pulsera y cupo "activos" según el concepto elegido (o el único, o legacy)
+const pulseraActiva = computed(() => {
+  if (itemElegido.value) return { zona: itemElegido.value.zona, color: itemElegido.value.color };
+  const items = preview.value?.items || [];
+  if (items.length === 1) return { zona: items[0].zona, color: items[0].color };
+  return preview.value?.pulsera || { zona: "", color: "#888" };
+});
+const cupoActivo = computed(() => {
+  if (itemElegido.value) return itemElegido.value.cupo;
+  const items = preview.value?.items || [];
+  if (items.length === 1) return items[0].cupo;
+  return preview.value?.cupo || { total: 0, usado: 0, restante: 0 };
+});
+function elegirItem(it) {
+  itemElegido.value = it;
+  cantidad.value = it.cupo.restante > 0 ? it.cupo.restante : 1;
+}
 
 let scanner = null;
 let bloqueado = false; // evita disparos múltiples por frame
@@ -128,6 +165,7 @@ async function consultar(token) {
   tokenActual = token;
   validando.value = true;
   resultado.value = null;
+  itemElegido.value = null;
   try {
     const { data } = await axios.get("/api/qr/" + encodeURIComponent(token), auth());
     preview.value = data;
@@ -144,11 +182,19 @@ async function consultar(token) {
 async function confirmar() {
   validando.value = true;
   try {
-    const { data } = await axios.post(
-      "/api/ingresos/escanear",
-      { token: tokenActual, cantidad_personas: cantidad.value },
-      auth()
-    );
+    const body = { token: tokenActual, cantidad_personas: cantidad.value };
+    const items = preview.value?.items || [];
+    if (itemElegido.value) body.reserva_item_id = itemElegido.value.id;
+    else if (items.length === 1) body.reserva_item_id = items[0].id;
+
+    const { data } = await axios.post("/api/ingresos/escanear", body, auth());
+
+    // El backend pide elegir zona (varios conceptos con cupo) → mostrar el selector
+    if (data.requiere_seleccion) {
+      preview.value = { ...preview.value, items: data.items };
+      itemElegido.value = null;
+      return;
+    }
     resultado.value = data;
     preview.value = null;
   } catch (e) {
@@ -204,6 +250,7 @@ async function stopCam() {
 async function reiniciar() {
   resultado.value = null;
   preview.value = null;
+  itemElegido.value = null;
   tokenActual = "";
   tokenManual.value = "";
   bloqueado = false;

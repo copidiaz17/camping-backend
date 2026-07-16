@@ -213,6 +213,13 @@ h2{font-size:clamp(30px,4.2vw,46px);font-weight:800;line-height:1.1;letter-spaci
 .veh-add #vehSel{flex:1;}
 .btn-veh{border:none;background:var(--lime);color:var(--forest);font-weight:700;padding:0 18px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:14px;white-space:nowrap;}
 .btn-veh:hover{filter:brightness(.95);}
+/* carrito de conceptos */
+#carritoBox{margin-top:16px;}
+.carrito-lbl{font-size:14px;font-weight:700;color:var(--forest);margin-bottom:8px;}
+.carrito-row{display:flex;justify-content:space-between;align-items:center;background:#eef7f0;border:1px solid #cfe6d6;border-radius:12px;padding:10px 14px;margin-bottom:8px;font-size:14px;color:var(--ink);}
+.carrito-row button{border:none;background:#fff;color:#c0392b;width:28px;height:28px;border-radius:8px;cursor:pointer;font-weight:700;}
+.btn-otro{width:100%;margin-top:14px;background:#fff;border:2px dashed var(--teal);color:var(--teal);font-weight:700;padding:12px;border-radius:14px;cursor:pointer;font-family:inherit;font-size:14.5px;transition:.2s;}
+.btn-otro:hover{background:#f0faf5;}
 .btn-next{background:var(--forest2);color:#fff;padding:14px 30px;font-size:15px;}
 .btn-next:hover{transform:translateY(-3px);box-shadow:var(--shadow-sm);}
 .qr-out{text-align:center;padding:6px 0;}
@@ -713,6 +720,12 @@ footer .fcol p{margin-bottom:4px;}
           </div>
           <!-- detalle según el tipo (quincho / asador / pileta / acampe) -->
           <div id="detalleTipo"></div>
+          <!-- carrito de conceptos ya agregados -->
+          <div id="carritoBox" style="display:none">
+            <div class="carrito-lbl">🧺 Conceptos en tu reserva</div>
+            <div id="carritoLista"></div>
+          </div>
+          <button type="button" class="btn-otro" onclick="agregarOtroConcepto()">➕ Agregar otro concepto (ej. pileta)</button>
           <!-- estacionamiento (opcional, varios vehículos) -->
           <div class="estac">
             <label class="estac-lbl">🚗 ¿Vas a estacionar en el predio? <span>(opcional)</span></label>
@@ -733,8 +746,7 @@ footer .fcol p{margin-bottom:4px;}
           <div class="pago-res">
             <div class="pago-row"><span>Reserva</span><b id="pgTipo">—</b></div>
             <div class="pago-row"><span>Fecha</span><b id="pgFecha">—</b></div>
-            <div class="pago-row"><span>Detalle</span><b id="pgDet">—</b></div>
-            <div class="pago-row"><span>Ingreso</span><b id="pgIngreso">$0</b></div>
+            <div id="pgItems"></div>
             <div class="pago-row" id="rowEstac"><span>Estacionamiento</span><b id="pgEstac">$0</b></div>
             <div class="pago-row" id="rowRecargo"><span>Recargo finde/feriado</span><b id="pgRecargo">$0</b></div>
             <div class="pago-row total"><span>Total a pagar</span><b id="pgMonto">$0</b></div>
@@ -1370,35 +1382,60 @@ function renderVehiculos(){
     return `<div class="veh-row"><span>🚗 ${v.descripcion} — $${Number(v.precio).toLocaleString('es-AR')}</span><button type="button" onclick="quitarVehiculo(${i})">✕</button></div>`;}).join('');
 }
 
+// ── Carrito de conceptos (una reserva puede combinar quincho + pileta + ...) ──
+let carrito=[];
+const CONCEPTO_LABEL={quincho:'Quincho',pileta:'Pileta',asador:'Asador',acampe:'Acampe'};
+
+function conceptoActual(){
+  const c={tipo};
+  if(tipo==='quincho'){ if(!quinchoSel)return null; c.quincho_id=quinchoSel;
+    const q=(dispo.quinchos||[]).find(x=>x.id==quinchoSel); c._resumen=(q?q.nombre:'Quincho'); }
+  else if(tipo==='asador'){ if(!asadorSel)return null; c.asador_id=asadorSel; c.cantidad_personas=personas;
+    const a=(dispo.asadores||[]).find(x=>x.id==asadorSel); c._resumen=(a?a.nombre:'Asador')+' · '+personas+' pers'; }
+  else if(tipo==='pileta'){ if(ninos+adultos<1)return null; c.cantidad_ninos=ninos; c.cantidad_adultos=adultos;
+    c._resumen='Pileta · '+ninos+' niños, '+adultos+' adultos'; }
+  else { c.cantidad_personas=personas; c._resumen='Acampe · '+personas+' pers'; }
+  return c;
+}
+function renderCarrito(){
+  const box=document.getElementById('carritoBox'), cont=document.getElementById('carritoLista');
+  if(!box)return;
+  if(!carrito.length){ box.style.display='none'; return; }
+  box.style.display='';
+  cont.innerHTML=carrito.map((c,i)=>`<div class="carrito-row"><span>✅ <b>${CONCEPTO_LABEL[c.tipo]||c.tipo}</b> — ${c._resumen}</span><button type="button" onclick="quitarConcepto(${i})">✕</button></div>`).join('');
+}
+function quitarConcepto(i){ carrito.splice(i,1); renderCarrito(); }
+function agregarOtroConcepto(){
+  const c=conceptoActual();
+  if(!c){ alert('Completá este concepto antes de agregar otro.'); return; }
+  carrito.push(c); renderCarrito();
+  quinchoSel=null; asadorSel=null; ninos=0; adultos=2; personas=4; // limpiar para elegir otro
+  goStep(1);
+}
+
 // ── Paso 2→3: crea la reserva PENDIENTE (sin QR) y muestra el desglose ──
 let reservaActual=null;
-function detalleTexto(){
-  if(tipo==='quincho'){const q=(dispo.quinchos||[]).find(x=>x.id==quinchoSel);return q?q.nombre:'Quincho';}
-  if(tipo==='asador'){const a=(dispo.asadores||[]).find(x=>x.id==asadorSel);return (a?a.nombre:'Asador')+' · '+personas+' pers';}
-  if(tipo==='pileta')return ninos+' niños · '+adultos+' adultos';
-  return personas+' personas';
-}
 function setRow(id,val){const el=document.getElementById(id);if(el)el.textContent='$'+Number(val||0).toLocaleString('es-AR');}
 async function crearReserva(ev){
   if(!localStorage.getItem(TOKK)){openOvl('ovlReg');return;}
   const btn=ev&&ev.target; if(btn){btn.disabled=true;btn.textContent='Verificando…';}
   try{
     const fecha=document.getElementById('fFecha').value;
-    const body={tipo,fecha,vehiculos:vehiculosSel};
-    if(tipo==='quincho'){if(!quinchoSel)throw new Error('Elegí un quincho disponible');body.quincho_id=quinchoSel;}
-    else if(tipo==='asador'){if(!asadorSel)throw new Error('Elegí un asador disponible');body.asador_id=asadorSel;body.cantidad_personas=personas;}
-    else if(tipo==='pileta'){if(ninos+adultos<1)throw new Error('Indicá al menos una persona');body.cantidad_ninos=ninos;body.cantidad_adultos=adultos;}
-    else body.cantidad_personas=personas; // acampe
-    const data=await apiPost('/api/publico/reservas',body,true);
+    const items=[...carrito];
+    const c=conceptoActual();
+    if(c) items.push(c);
+    if(!items.length) throw new Error('Agregá al menos un concepto a tu reserva');
+    const data=await apiPost('/api/publico/reservas',{fecha,items,vehiculos:vehiculosSel},true);
     reservaActual=data.reserva;
     const dg=data.desglose||{};
-    document.getElementById('pgTipo').textContent=tipoLabelSel;
     const f=fecha.split('-');document.getElementById('pgFecha').textContent=f[2]+'/'+f[1]+'/'+f[0];
-    document.getElementById('pgDet').textContent=detalleTexto();
-    setRow('pgIngreso',dg.base_ingreso);setRow('pgEstac',dg.base_estacionamiento);setRow('pgRecargo',dg.recargo);
+    document.getElementById('pgTipo').textContent=(dg.items||[]).map(i=>CONCEPTO_LABEL[i.tipo]||i.tipo).join(' + ')||'—';
+    document.getElementById('pgItems').innerHTML=(dg.items||[]).map(i=>`<div class="pago-row"><span>${CONCEPTO_LABEL[i.tipo]||i.tipo} <small style="color:#8a9a8e">(${i.zona})</small></span><b>$${Number(i.base).toLocaleString('es-AR')}</b></div>`).join('');
+    setRow('pgEstac',dg.base_estacionamiento);setRow('pgRecargo',dg.recargo);
     document.getElementById('rowEstac').style.display=(dg.base_estacionamiento>0)?'':'none';
     document.getElementById('rowRecargo').style.display=(dg.recargo>0)?'':'none';
     document.getElementById('pgMonto').textContent='$'+Number(data.reserva.monto).toLocaleString('es-AR');
+    carrito=[]; renderCarrito(); // limpiar para la próxima
     goStep(3);
   }catch(err){
     alert('No se pudo crear la reserva: '+err.message);
@@ -1415,13 +1452,11 @@ async function pagarReserva(ev){
     goStep(4);
     const cv=document.getElementById('qrBook');cv.classList.remove('qr-pop');void cv.offsetWidth;cv.classList.add('qr-pop');
     realQR('qrBook',data.qr.token);
-    const pers = tipo==='pileta' ? (ninos+adultos) : personas;
-    document.getElementById('rTipo').textContent=tipoLabelSel;
+    document.getElementById('rTipo').textContent=document.getElementById('pgTipo').textContent;
     document.getElementById('rFecha').textContent=document.getElementById('pgFecha').textContent;
-    document.getElementById('rPers').textContent=pers;
-    const esQ=tipo==='quincho';
-    document.getElementById('rCupo').textContent=esQ?('Quincho · cupo '+reservaActual.cupo+' lugares'):('Personas en este QR: '+pers);
-    setTimeout(()=>{document.getElementById('rBar').style.width=(esQ?(pers/reservaActual.cupo*100):(Math.min(100,pers/reservaActual.cupo*100)))+'%';},100);
+    document.getElementById('rPers').textContent=reservaActual.cupo;
+    document.getElementById('rCupo').textContent='Cupo total de la reserva: '+reservaActual.cupo+' lugares';
+    setTimeout(()=>{document.getElementById('rBar').style.width='8%';},100);
   }catch(err){alert('No se pudo procesar el pago: '+err.message);}
   finally{ if(btn){btn.disabled=false;btn.textContent='💳 Pagar ahora';} }
 }

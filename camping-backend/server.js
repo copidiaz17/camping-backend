@@ -17,6 +17,7 @@ import "./models/Asador.js";
 import "./models/Tarifa.js";
 import "./models/Cliente.js";
 import "./models/Reserva.js";
+import "./models/ReservaItem.js";
 import "./models/ReservaVehiculo.js";
 import "./models/Feriado.js";
 import "./models/CodigoQR.js";
@@ -161,6 +162,7 @@ const PORT = process.env.PORT || 3002;
       "ALTER TABLE reservas ADD COLUMN recargo DECIMAL(12,2) NOT NULL DEFAULT 0",
       "ALTER TABLE reservas ADD COLUMN monto_estacionamiento DECIMAL(12,2) NOT NULL DEFAULT 0",
       "ALTER TABLE quinchos ADD COLUMN tamano ENUM('grande','mediano') NOT NULL DEFAULT 'grande'",
+      "ALTER TABLE ingresos ADD COLUMN reserva_item_id INT NULL",
     ];
     for (const sql of migraciones) {
       try {

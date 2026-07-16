@@ -7,6 +7,7 @@ const Ingreso = sequelize.define(
   {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     reserva_id: { type: DataTypes.INTEGER, allowNull: false },
+    reserva_item_id: { type: DataTypes.INTEGER, allowNull: true }, // a qué concepto ingresó (null = reservas viejas)
     codigo_qr_id: { type: DataTypes.INTEGER, allowNull: false },
     cantidad_personas: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
     registrado_por_id: { type: DataTypes.INTEGER, allowNull: true }, // guardia que escaneó

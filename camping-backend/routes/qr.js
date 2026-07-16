@@ -1,6 +1,7 @@
 import express from "express";
 import CodigoQR from "../models/CodigoQR.js";
 import Reserva from "../models/Reserva.js";
+import ReservaItem from "../models/ReservaItem.js";
 import Cliente from "../models/Cliente.js";
 import Zona from "../models/Zona.js";
 import Quincho from "../models/Quincho.js";
@@ -15,6 +16,7 @@ const includeReserva = {
     { model: Cliente, as: "cliente" },
     { model: Zona, as: "zona" },
     { model: Quincho, as: "quincho" },
+    { model: ReservaItem, as: "items", include: [{ model: Zona, as: "zona" }] },
   ],
 };
 
@@ -32,19 +34,35 @@ router.get("/reserva/:reservaId", authMiddleware, async (req, res) => {
 router.get("/:token", authMiddleware, async (req, res) => {
   const qr = await CodigoQR.findOne({ where: { token: req.params.token }, include: [includeReserva] });
   if (!qr) return res.status(404).json({ message: "QR no encontrado" });
+
+  const r = qr.reserva;
+  // Conceptos de la reserva con su cupo (una reserva puede combinar quincho + pileta + ...)
+  const items = (r && r.items ? r.items : []).map((it) => ({
+    id: it.id,
+    tipo: it.tipo,
+    zona: it.zona ? it.zona.nombre : null,
+    color: it.zona ? it.zona.color : null,
+    cupo: { total: it.cupo_total, usado: it.cupo_usado, restante: it.cupo_total - it.cupo_usado },
+  }));
+
+  // Legacy (reservas viejas sin ítems): usar la zona de la reserva y el cupo del QR
+  const legacyPulsera = r && r.zona ? { zona: r.zona.nombre, color: r.zona.color } : null;
+  const legacyCupo = { total: qr.cupo_total, usado: qr.cupo_usado, restante: qr.cupo_total - qr.cupo_usado };
+
   res.json({
     token: qr.token,
     estado: qr.estado,
     vencimiento_fecha: qr.vencimiento_fecha,
-    cupo: { total: qr.cupo_total, usado: qr.cupo_usado, restante: qr.cupo_total - qr.cupo_usado },
-    pulsera: qr.reserva && qr.reserva.zona ? { zona: qr.reserva.zona.nombre, color: qr.reserva.zona.color } : null,
-    reserva: qr.reserva
+    items,
+    pulsera: items.length ? { zona: items[0].zona, color: items[0].color } : legacyPulsera,
+    cupo: items.length ? items[0].cupo : legacyCupo,
+    reserva: r
       ? {
-          numero: qr.reserva.numero,
-          tipo: qr.reserva.tipo,
-          fecha: qr.reserva.fecha,
-          estado: qr.reserva.estado,
-          cliente: qr.reserva.cliente ? `${qr.reserva.cliente.nombre} ${qr.reserva.cliente.apellido || ""}`.trim() : null,
+          numero: r.numero,
+          tipo: r.tipo,
+          fecha: r.fecha,
+          estado: r.estado,
+          cliente: r.cliente ? `${r.cliente.nombre} ${r.cliente.apellido || ""}`.trim() : null,
         }
       : null,
   });
