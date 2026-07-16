@@ -293,7 +293,7 @@ h2{font-size:clamp(30px,4.2vw,46px);font-weight:800;line-height:1.1;letter-spaci
 #tarifas{background:radial-gradient(120% 100% at 100% 0%,#0e5a43,#0b3d2c 55%,#06241a);color:#fff;}
 #tarifas .sec-k{color:var(--lime);}#tarifas .sec-k::before{background:var(--lime);}
 #tarifas .sec-sub{color:rgba(255,255,255,.72);}
-.tarifas{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.tarifas{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;}
 .tar{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:28px 24px;
   backdrop-filter:blur(8px);transition:transform .3s var(--ease),background .3s;position:relative;}
 .tar:hover{transform:translateY(-8px);background:rgba(255,255,255,.1);}
@@ -971,19 +971,10 @@ footer .fcol p{margin-bottom:4px;}
     <div class="sec-head reveal">
       <div class="sec-k">Tarifas</div>
       <h2 style="color:#fff;">Precios claros, <span class="serif italic">sin sorpresas</span></h2>
-      <p class="sec-sub">Valores de ejemplo para la maqueta — se cargan desde el panel según temporada.</p>
+      <p class="sec-sub">Tarifas vigentes según la Ordenanza Municipal N° 6582/25.</p>
     </div>
-    <div class="tarifas">
-      <div class="tar reveal" style="--i:0"><div class="tn">Pase de día</div><div class="tp">$3.500<small> /pers.</small></div>
-        <ul><li>Acceso al predio</li><li>Mesas y sombra</li><li>Estacionamiento</li></ul></div>
-      <div class="tar dest reveal" style="--i:1"><div class="tn">Pase + Pileta</div><div class="tp">$5.500<small> /pers.</small></div>
-        <ul><li>Todo lo del pase de día</li><li>Pileta con guardavidas</li><li>Pulsera sumergible</li></ul></div>
-      <div class="tar reveal" style="--i:2"><div class="tn">Quincho (día)</div><div class="tp">$45.000<small> /quincho</small></div>
-        <ul><li>Hasta 50 personas</li><li>Parrilla + mesas</li><li>QR para tus invitados</li></ul></div>
-      <div class="tar reveal" style="--i:3"><div class="tn">Acampe</div><div class="tp">$4.000<small> /noche</small></div>
-        <ul><li>Parcela con fogón</li><li>Agua y luz</li><li>Baños 24 hs</li></ul></div>
-    </div>
-    <p class="tar-note">* Residentes y jubilados: consultá descuentos en boletería o por WhatsApp.</p>
+    <div class="tarifas" id="tarifasGrid"></div>
+    <p class="tar-note" id="tarNote">Sábados, domingos y feriados: +$2.000 por concepto. Estacionamiento aparte según el vehículo.</p>
   </div>
 </section>
 
@@ -1333,6 +1324,28 @@ async function cargarVehiculos(){
   }catch(e){}
 }
 cargarVehiculos();
+
+// ── Sección pública de precios (desde la API, Ordenanza 6582) ──
+async function renderTarifasPublicas(){
+  const grid=document.getElementById('tarifasGrid'); if(!grid)return;
+  let ts=[]; try{ ts=await apiGet('/api/publico/tarifas'); }catch(e){ return; }
+  const P={}; (ts||[]).forEach(t=>{ if(t.activo)P[t.tipo]=Number(t.precio); });
+  const money=n=>'$'+Number(n||0).toLocaleString('es-AR');
+  const cards=[
+    {n:'Quincho grande',p:P.quincho_grande,u:'/día · hasta 50',li:['Parrilla y mesas','QR para tus invitados','Pulsera roja']},
+    {n:'Quincho mediano',p:P.quincho_mediano,u:'/día · hasta 30',li:['Parrilla y mesas','QR para tus invitados','Pulsera roja'],dest:true},
+    {n:'Pileta',p:P.pileta_adulto,u:'/adulto · niño '+money(P.pileta_nino),li:['Guardavidas','Aforo controlado','Pulsera verde']},
+    {n:'Asador',p:P.asador,u:'/día',li:['Uno de los 16 asadores','Al aire libre','Pulsera naranja']},
+    {n:'Acampe',p:P.acampe,u:'/carpa',li:['Parcela con fogón','Agua y luz','Pulsera azul']},
+  ];
+  grid.innerHTML=cards.filter(c=>c.p!=null).map((c,i)=>`<div class="tar ${c.dest?'dest':''} reveal in" style="--i:${i}"><div class="tn">${c.n}</div><div class="tp">${money(c.p)}<small> ${c.u}</small></div><ul>${c.li.map(x=>'<li>'+x+'</li>').join('')}</ul></div>`).join('');
+  const veh=(ts||[]).filter(t=>t.categoria==='vehiculo'&&t.activo).sort((a,b)=>b.precio-a.precio);
+  const note=document.getElementById('tarNote');
+  if(note&&veh.length){
+    note.innerHTML='<b>Sábados, domingos y feriados:</b> +'+money(P.recargo_finde)+' por concepto. &nbsp;·&nbsp; <b>Estacionamiento:</b> '+veh.map(v=>v.descripcion+' '+money(v.precio)).join(' · ');
+  }
+}
+renderTarifasPublicas();
 
 // ── paso 2: preparar detalle según tipo + disponibilidad de la fecha ──
 async function prepararPaso2(){
