@@ -1328,21 +1328,24 @@ cargarVehiculos();
 // ── Sección pública de precios (desde la API, Ordenanza 6582) ──
 async function renderTarifasPublicas(){
   const grid=document.getElementById('tarifasGrid'); if(!grid)return;
-  let ts=[]; try{ ts=await apiGet('/api/publico/tarifas'); }catch(e){ return; }
+  let ts=[]; try{ ts=await apiGet('/api/publico/tarifas?t='+Date.now()); }catch(e){}
   const P={}; (ts||[]).forEach(t=>{ if(t.activo)P[t.tipo]=Number(t.precio); });
   const money=n=>'$'+Number(n||0).toLocaleString('es-AR');
+  const g=(k,def)=>(P[k]!=null?P[k]:def); // API, o valor de la Ordenanza 6582 como respaldo
   const cards=[
-    {n:'Quincho grande',p:P.quincho_grande,u:'/día · hasta 50',li:['Parrilla y mesas','QR para tus invitados','Pulsera roja']},
-    {n:'Quincho mediano',p:P.quincho_mediano,u:'/día · hasta 30',li:['Parrilla y mesas','QR para tus invitados','Pulsera roja'],dest:true},
-    {n:'Pileta',p:P.pileta_adulto,u:'/adulto · niño '+money(P.pileta_nino),li:['Guardavidas','Aforo controlado','Pulsera verde']},
-    {n:'Asador',p:P.asador,u:'/día',li:['Uno de los 16 asadores','Al aire libre','Pulsera naranja']},
-    {n:'Acampe',p:P.acampe,u:'/carpa',li:['Parcela con fogón','Agua y luz','Pulsera azul']},
+    {n:'Quincho grande',p:g('quincho_grande',52000),u:'/día · hasta 50',li:['Parrilla y mesas','QR para tus invitados','Pulsera roja']},
+    {n:'Quincho mediano',p:g('quincho_mediano',36400),u:'/día · hasta 30',li:['Parrilla y mesas','QR para tus invitados','Pulsera roja']},
+    {n:'Pileta',p:g('pileta_adulto',6000),u:'/adulto · niño '+money(g('pileta_nino',4000)),li:['Guardavidas','Aforo controlado','Pulsera verde']},
+    {n:'Asador',p:g('asador',5000),u:'/día',li:['Uno de los 16 asadores','Al aire libre','Pulsera naranja']},
+    {n:'Acampe',p:g('acampe',5000),u:'/carpa',li:['Parcela con fogón','Agua y luz','Pulsera azul']},
   ];
-  grid.innerHTML=cards.filter(c=>c.p!=null).map((c,i)=>`<div class="tar ${c.dest?'dest':''} reveal in" style="--i:${i}"><div class="tn">${c.n}</div><div class="tp">${money(c.p)}<small> ${c.u}</small></div><ul>${c.li.map(x=>'<li>'+x+'</li>').join('')}</ul></div>`).join('');
-  const veh=(ts||[]).filter(t=>t.categoria==='vehiculo'&&t.activo).sort((a,b)=>b.precio-a.precio);
+  grid.innerHTML=cards.map((c)=>`<div class="tar"><div class="tn">${c.n}</div><div class="tp">${money(c.p)}<small> ${c.u}</small></div><ul>${c.li.map(x=>'<li>'+x+'</li>').join('')}</ul></div>`).join('');
   const note=document.getElementById('tarNote');
-  if(note&&veh.length){
-    note.innerHTML='<b>Sábados, domingos y feriados:</b> +'+money(P.recargo_finde)+' por concepto. &nbsp;·&nbsp; <b>Estacionamiento:</b> '+veh.map(v=>v.descripcion+' '+money(v.precio)).join(' · ');
+  if(note){
+    const veh=(ts||[]).filter(t=>t.categoria==='vehiculo'&&t.activo).sort((a,b)=>b.precio-a.precio);
+    const est=veh.length?veh.map(v=>v.descripcion+' '+money(v.precio)).join(' · ')
+      :'Camión/Colectivo $21.000 · Motor home $18.000 · Casa rodante $11.000 · Automóvil $2.500 · Motocicleta $1.500 · Motos de agua/Lanchas $600';
+    note.innerHTML='<b>Sábados, domingos y feriados:</b> +'+money(g('recargo_finde',2000))+' por concepto. &nbsp;·&nbsp; <b>Estacionamiento:</b> '+est;
   }
 }
 renderTarifasPublicas();
