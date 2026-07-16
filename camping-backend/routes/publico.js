@@ -12,7 +12,7 @@ import Asador from "../models/Asador.js";
 import Tarifa from "../models/Tarifa.js";
 import CodigoQR from "../models/CodigoQR.js";
 import {
-  ZONA_POR_TIPO, fechaEsPasada, quinchosLibres, asadoresLibres,
+  ZONA_POR_TIPO, fechaEsPasada, hoyLocal, quinchosLibres, asadoresLibres,
   generarQR, normalizarItems, crearReservaCompleta,
 } from "../utils/reservas.js";
 import { enviarQRReserva } from "../utils/mailer.js";
@@ -170,9 +170,10 @@ router.post("/reservas/:id/pagar", clienteAuth, async (req, res) => {
 });
 
 // ── GET /api/publico/mis-reservas ── (visitante logueado)
+// Solo muestra reservas de hoy en adelante (no las de fechas pasadas / QR vencidos).
 router.get("/mis-reservas", clienteAuth, async (req, res) => {
   const reservas = await Reserva.findAll({
-    where: { cliente_id: req.clienteId },
+    where: { cliente_id: req.clienteId, fecha: { [Op.gte]: hoyLocal() } },
     include: [
       { model: Zona, as: "zona" },
       { model: Quincho, as: "quincho" },
