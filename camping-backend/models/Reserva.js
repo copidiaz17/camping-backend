@@ -8,17 +8,23 @@ const Reserva = sequelize.define(
   {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     numero: { type: DataTypes.STRING, allowNull: false, unique: true },
+    // quincho | acampe | asador | pileta
     tipo: {
-      type: DataTypes.ENUM("pase_dia", "pase_pileta", "quincho", "acampe"),
+      type: DataTypes.STRING(20),
       allowNull: false,
     },
     zona_id: { type: DataTypes.INTEGER, allowNull: false },
     quincho_id: { type: DataTypes.INTEGER, allowNull: true }, // solo si tipo = quincho
+    asador_id: { type: DataTypes.INTEGER, allowNull: true },  // solo si tipo = asador
     cliente_id: { type: DataTypes.INTEGER, allowNull: false },
     fecha: { type: DataTypes.DATEONLY, allowNull: false },
     cantidad_personas: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
+    cantidad_ninos: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },   // pileta
+    cantidad_adultos: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 }, // pileta
     cupo: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 }, // lugares totales que admite la reserva
-    monto: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 },
+    monto: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 }, // total (ingreso + recargo + estacionamiento)
+    recargo: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 }, // recargo fin de semana/feriado aplicado
+    monto_estacionamiento: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 },
     estado: {
       type: DataTypes.ENUM("pendiente", "confirmada", "cancelada"),
       allowNull: false,

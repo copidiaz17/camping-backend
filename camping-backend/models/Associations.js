@@ -2,8 +2,10 @@
 import Usuario from "./Usuario.js";
 import Zona from "./Zona.js";
 import Quincho from "./Quincho.js";
+import Asador from "./Asador.js";
 import Cliente from "./Cliente.js";
 import Reserva from "./Reserva.js";
+import ReservaVehiculo from "./ReservaVehiculo.js";
 import CodigoQR from "./CodigoQR.js";
 import Ingreso from "./Ingreso.js";
 import Caja from "./Caja.js";
@@ -20,6 +22,14 @@ Reserva.belongsTo(Zona, { foreignKey: "zona_id", as: "zona" });
 // Reserva ↔ Quincho (opcional)
 Quincho.hasMany(Reserva, { foreignKey: "quincho_id", as: "reservas" });
 Reserva.belongsTo(Quincho, { foreignKey: "quincho_id", as: "quincho" });
+
+// Reserva ↔ Asador (opcional)
+Asador.hasMany(Reserva, { foreignKey: "asador_id", as: "reservas" });
+Reserva.belongsTo(Asador, { foreignKey: "asador_id", as: "asador" });
+
+// Reserva ↔ ReservaVehiculo (estacionamiento, varios por reserva)
+Reserva.hasMany(ReservaVehiculo, { foreignKey: "reserva_id", as: "vehiculos" });
+ReservaVehiculo.belongsTo(Reserva, { foreignKey: "reserva_id", as: "reserva" });
 
 // Reserva ↔ Usuario que la creó
 Usuario.hasMany(Reserva, { foreignKey: "creado_por_id", as: "reservasCreadas" });
@@ -57,4 +67,4 @@ MovimientoCaja.belongsTo(Usuario, { foreignKey: "registrado_por_id", as: "regist
 
 console.log("✅ Asociaciones definidas");
 
-export { Usuario, Zona, Quincho, Cliente, Reserva, CodigoQR, Ingreso, Caja, MovimientoCaja };
+export { Usuario, Zona, Quincho, Asador, Cliente, Reserva, ReservaVehiculo, CodigoQR, Ingreso, Caja, MovimientoCaja };

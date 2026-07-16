@@ -197,6 +197,22 @@ h2{font-size:clamp(30px,4.2vw,46px);font-weight:800;line-height:1.1;letter-spaci
 .bk-actions{margin-top:28px;display:flex;gap:12px;justify-content:flex-end;}
 .btn-back{background:#efece2;color:var(--ink);padding:14px 24px;font-size:15px;}
 .btn-back:hover{background:#e4e0d4;}
+/* selects del detalle (quincho/asador/vehículo) */
+#detalleTipo{margin-top:4px;}
+#detalleTipo .fld{margin-bottom:14px;}
+#detalleTipo select,#vehSel{width:100%;padding:14px;border:2px solid #e7e4da;border-radius:14px;font-family:inherit;font-size:15px;background:#fff;transition:.2s;cursor:pointer;}
+#detalleTipo select:focus,#vehSel:focus{outline:none;border-color:var(--teal);}
+/* estacionamiento */
+.estac{margin-top:18px;padding:16px;border:2px dashed #e0dccf;border-radius:16px;background:#faf9f4;}
+.estac-lbl{font-size:14px;font-weight:700;color:var(--forest);display:block;margin-bottom:10px;}
+.estac-lbl span{font-weight:500;color:var(--muted);}
+.veh-empty{color:#9a9a8e;font-size:13px;margin:2px 0 10px;}
+.veh-row{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e7e4da;border-radius:12px;padding:9px 14px;margin-bottom:8px;font-size:14px;color:var(--ink);}
+.veh-row button{border:none;background:#fbeaea;color:#c0392b;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;}
+.veh-add{display:flex;gap:10px;align-items:stretch;margin-top:4px;}
+.veh-add #vehSel{flex:1;}
+.btn-veh{border:none;background:var(--lime);color:var(--forest);font-weight:700;padding:0 18px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:14px;white-space:nowrap;}
+.btn-veh:hover{filter:brightness(.95);}
 .btn-next{background:var(--forest2);color:#fff;padding:14px 30px;font-size:15px;}
 .btn-next:hover{transform:translateY(-3px);box-shadow:var(--shadow-sm);}
 .qr-out{text-align:center;padding:6px 0;}
@@ -599,7 +615,7 @@ footer .fcol p{margin-bottom:4px;}
           <span class="ln"><span class="serif italic grad">reservado</span></span>
           <span class="ln"><span>en 2 minutos.</span></span>
         </h1>
-        <p class="hero-sub">Elegí <b>quincho, pileta o acampe</b>, pagá online y recibí tu <b>código QR</b> por WhatsApp. Llegás, lo mostrás por la ventanilla y entrás — sin filas, sin papeles.</p>
+        <p class="hero-sub">Elegí <b>quincho, pileta, asador o acampe</b>, pagá online y recibí tu <b>código QR</b> por WhatsApp. Llegás, lo mostrás por la ventanilla y entrás — sin filas, sin papeles.</p>
         <div class="hero-ctas">
           <a class="btn btn-big" onclick="reserveCTA()">Reservar online →</a>
           <a href="#como" class="btn btn-glass">¿Cómo funciona?</a>
@@ -662,22 +678,28 @@ footer .fcol p{margin-bottom:4px;}
           <div class="lock-hint" id="lockHint">🔒 <span>Iniciá sesión o registrate para poder reservar — te toma 1 minuto.</span></div>
           <div class="reg-tip">💡 <span>Para reservar vas a crear una cuenta en 1 minuto (nombre, email y WhatsApp). Así te llegan tus QR al teléfono.</span></div>
           <div class="tipos">
-            <button class="tipo sel" data-t="Quincho" data-c="#e23b3b">
+            <button class="tipo sel" data-t="quincho" data-c="#e23b3b" data-label="Quincho">
               <span class="tico">🏠</span>
-              <span><span class="tt">Quincho</span><br><span class="td">Hasta 50 personas · parrilla y mesas</span></span>
+              <span><span class="tt">Quincho</span><br><span class="td">Grande (50) o mediano (30) · parrilla y mesas</span></span>
               <span class="chip" style="background:#e23b3b">pulsera roja</span>
               <span class="rad"></span>
             </button>
-            <button class="tipo" data-t="Pase de día + Pileta" data-c="#2e9d63">
+            <button class="tipo" data-t="pileta" data-c="#38a169" data-label="Pileta">
               <span class="tico">🏊</span>
-              <span><span class="tt">Pase de día + Pileta</span><br><span class="td">Acceso al predio y pileta</span></span>
-              <span class="chip" style="background:#2e9d63">pulsera verde</span>
+              <span><span class="tt">Pileta</span><br><span class="td">Acceso a la pileta · niños y adultos</span></span>
+              <span class="chip" style="background:#38a169">pulsera verde</span>
               <span class="rad"></span>
             </button>
-            <button class="tipo" data-t="Acampe" data-c="#2b86c5">
+            <button class="tipo" data-t="asador" data-c="#dd6b20" data-label="Asador">
+              <span class="tico">🔥</span>
+              <span><span class="tt">Asador</span><br><span class="td">Uno de los 16 asadores del predio</span></span>
+              <span class="chip" style="background:#dd6b20">pulsera naranja</span>
+              <span class="rad"></span>
+            </button>
+            <button class="tipo" data-t="acampe" data-c="#2b6cb0" data-label="Acampe">
               <span class="tico">⛺</span>
-              <span><span class="tt">Acampe</span><br><span class="td">Parcela con fogón · por noche</span></span>
-              <span class="chip" style="background:#2b86c5">pulsera azul</span>
+              <span><span class="tt">Acampe</span><br><span class="td">Parcela con fogón · por carpa</span></span>
+              <span class="chip" style="background:#2b6cb0">pulsera azul</span>
               <span class="rad"></span>
             </button>
           </div>
@@ -687,9 +709,17 @@ footer .fcol p{margin-bottom:4px;}
         <!-- paso 2 -->
         <div class="pane" id="p2">
           <div class="frm">
-            <div class="fld"><label>Fecha</label><input type="date" id="fFecha" value="2026-06-14"></div>
-            <div class="fld"><label>Cantidad de personas</label>
-              <div class="stepper"><button onclick="pers(-1)">−</button><span id="fPers">4</span><button onclick="pers(1)">+</button></div>
+            <div class="fld"><label>Fecha</label><input type="date" id="fFecha" onchange="onFechaChange()"></div>
+          </div>
+          <!-- detalle según el tipo (quincho / asador / pileta / acampe) -->
+          <div id="detalleTipo"></div>
+          <!-- estacionamiento (opcional, varios vehículos) -->
+          <div class="estac">
+            <label class="estac-lbl">🚗 ¿Vas a estacionar en el predio? <span>(opcional)</span></label>
+            <div id="vehLista"></div>
+            <div class="veh-add">
+              <select id="vehSel"><option value="">Elegí un vehículo…</option></select>
+              <button type="button" class="btn-veh" onclick="addVehiculo()">+ Agregar</button>
             </div>
           </div>
           <div class="bk-actions">
@@ -703,7 +733,10 @@ footer .fcol p{margin-bottom:4px;}
           <div class="pago-res">
             <div class="pago-row"><span>Reserva</span><b id="pgTipo">—</b></div>
             <div class="pago-row"><span>Fecha</span><b id="pgFecha">—</b></div>
-            <div class="pago-row"><span>Personas</span><b id="pgPers">—</b></div>
+            <div class="pago-row"><span>Detalle</span><b id="pgDet">—</b></div>
+            <div class="pago-row"><span>Ingreso</span><b id="pgIngreso">$0</b></div>
+            <div class="pago-row" id="rowRecargo"><span>Recargo finde/feriado</span><b id="pgRecargo">$0</b></div>
+            <div class="pago-row" id="rowEstac"><span>Estacionamiento</span><b id="pgEstac">$0</b></div>
             <div class="pago-row total"><span>Total a pagar</span><b id="pgMonto">$0</b></div>
           </div>
           <p class="qr-note">🔒 El QR se genera <b>una vez confirmado el pago</b>. <i>(Demo: pago simulado — luego se integra MercadoPago.)</i></p>
@@ -762,7 +795,7 @@ footer .fcol p{margin-bottom:4px;}
           <span class="badge"><span class="dotc" style="background:#e23b3b"></span> Pulsera roja</span>
           <span class="zico">🏠</span>
         </div>
-        <div class="zbody"><h3>Quinchos</h3><p>8 quinchos con parrilla, mesas y sombra. Hasta 50 personas cada uno, con cupo controlado por QR.</p>
+        <div class="zbody"><h3>Quinchos</h3><p>10 quinchos con parrilla, mesas y sombra: 5 grandes (50 personas) y 5 medianos (30 personas), con cupo controlado por QR.</p>
           <div class="zfeat"><span>🔥 Parrilla</span><span>🪑 Mesas</span><span>🌳 Sombra</span></div></div>
       </div>
       <div class="zona reveal" style="--i:1">
@@ -771,16 +804,25 @@ footer .fcol p{margin-bottom:4px;}
           <span class="badge"><span class="dotc" style="background:#2e9d63"></span> Pulsera verde</span>
           <span class="zico">🏊</span>
         </div>
-        <div class="zbody"><h3>Pileta</h3><p>Pileta recreativa con guardavidas y aforo controlado en tiempo real. Acceso con pase de pileta.</p>
+        <div class="zbody"><h3>Pileta</h3><p>Pileta recreativa con guardavidas y aforo controlado en tiempo real. Entrada por niño y por adulto.</p>
           <div class="zfeat"><span>🛟 Guardavidas</span><span>📊 Aforo en vivo</span></div></div>
       </div>
       <div class="zona reveal" style="--i:2">
         <div class="zhead">
+          <div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Foto asadores</span></div>
+          <span class="badge"><span class="dotc" style="background:#dd6b20"></span> Pulsera naranja</span>
+          <span class="zico">🔥</span>
+        </div>
+        <div class="zbody"><h3>Asadores</h3><p>16 asadores distribuidos en el predio. Reservá el tuyo y disfrutá del día con la familia o el grupo.</p>
+          <div class="zfeat"><span>🔥 Parrilla</span><span>🌳 Al aire libre</span></div></div>
+      </div>
+      <div class="zona reveal" style="--i:3">
+        <div class="zhead">
           <div class="ph"><span class="ph-lbl"><span class="ico">📷</span>Foto acampe</span></div>
-          <span class="badge"><span class="dotc" style="background:#2b86c5"></span> Pulsera azul</span>
+          <span class="badge"><span class="dotc" style="background:#2b6cb0"></span> Pulsera azul</span>
           <span class="zico">⛺</span>
         </div>
-        <div class="zbody"><h3>Zona de acampe</h3><p>Parcelas con fogón, agua y luz, a la sombra de las casuarinas. Reservá tu noche sin trámites.</p>
+        <div class="zbody"><h3>Zona de acampe</h3><p>Parcelas con fogón, agua y luz, a la sombra de las casuarinas. Reservá tu carpa sin trámites.</p>
           <div class="zfeat"><span>🔥 Fogón</span><span>💧 Agua y luz</span><span>🚿 Baños 24h</span></div></div>
       </div>
     </div>
@@ -1217,7 +1259,7 @@ async function apiGet(path,auth){const h={};
   const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||('Error del servidor ('+r.status+'). Probá de nuevo en un momento.'));return d;}
 // QR REAL a partir de un token (lo escanea el guardia)
 function realQR(canvasId,token){const c=document.getElementById(canvasId);if(c&&window.QRCode)QRCode.toCanvas(c,token,{width:c.width||150,margin:1,color:{dark:'#10201a',light:'#ffffff'}});}
-function tipoLabel(t){return {quincho:'Quincho',pase_pileta:'Pase pileta',pase_dia:'Pase día',acampe:'Acampe'}[t]||t;}
+function tipoLabel(t){return {quincho:'Quincho',pileta:'Pileta',asador:'Asador',acampe:'Acampe',pase_pileta:'Pase pileta',pase_dia:'Pase día'}[t]||t;}
 
 // ── QR falso (decorativo: hero y demo de ingreso) ──
 function drawQR(id,seed){const c=document.getElementById(id);if(!c)return;const x=c.getContext('2d');
@@ -1241,11 +1283,17 @@ function onScroll(){
 addEventListener('scroll',onScroll,{passive:true});
 
 // ── booking ──
-let tipo='Quincho',color='#e23b3b',personas=4;
+let tipo='quincho', color='#e23b3b', tipoLabelSel='Quincho';
+let personas=4, ninos=0, adultos=2;
+let vehiculosSel=[];           // claves de vehículos elegidos
+let tarifasVeh=[];             // catálogo de vehículos {tipo,descripcion,precio}
+let dispo={quinchos:[],asadores:[]};
+let quinchoSel=null, asadorSel=null;
+
 document.querySelectorAll('.tipo').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.tipo').forEach(o=>o.classList.remove('sel'));
-  b.classList.add('sel');tipo=b.dataset.t;color=b.dataset.c;});
-function pers(d){personas=Math.max(1,Math.min(50,personas+d));document.getElementById('fPers').textContent=personas;}
+  b.classList.add('sel');tipo=b.dataset.t;color=b.dataset.c;tipoLabelSel=b.dataset.label;});
+
 function goStep(n){
   ['p1','p2','p3','p4'].forEach((id,i)=>document.getElementById(id).classList.toggle('show',i===n-1));
   for(let i=1;i<=4;i++){const s=document.getElementById('st'+i);if(s){s.classList.toggle('on',i===n);s.classList.toggle('done',i<n);}}
@@ -1256,19 +1304,100 @@ function goStep(n){
   const iso=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
   fe.value=iso;fe.min=iso;}})();
 
-// Paso 1→3: crea la reserva PENDIENTE (sin QR) y muestra el resumen de pago
-const TIPO_API={'Quincho':'quincho','Pase de día + Pileta':'pase_pileta','Acampe':'acampe'};
+// ── steppers ──
+function stepPers(d){personas=Math.max(1,Math.min(50,personas+d));const el=document.getElementById('sPers');if(el)el.textContent=personas;}
+function stepNinos(d){ninos=Math.max(0,Math.min(50,ninos+d));const el=document.getElementById('sNinos');if(el)el.textContent=ninos;}
+function stepAdultos(d){adultos=Math.max(0,Math.min(50,adultos+d));const el=document.getElementById('sAdultos');if(el)el.textContent=adultos;}
+function stepperHtml(label,id,val,fn){
+  return `<div class="fld"><label>${label}</label><div class="stepper"><button type="button" onclick="${fn}(-1)">−</button><span id="${id}">${val}</span><button type="button" onclick="${fn}(1)">+</button></div></div>`;}
+
+// ── catálogo de vehículos (una vez) ──
+async function cargarVehiculos(){
+  try{
+    const ts=await apiGet('/api/publico/tarifas');
+    tarifasVeh=(ts||[]).filter(t=>t.categoria==='vehiculo'&&t.activo);
+    const sel=document.getElementById('vehSel');
+    if(sel)sel.innerHTML='<option value="">Elegí un vehículo…</option>'+tarifasVeh.map(v=>`<option value="${v.tipo}">${v.descripcion} — $${Number(v.precio).toLocaleString('es-AR')}</option>`).join('');
+  }catch(e){}
+}
+cargarVehiculos();
+
+// ── paso 2: preparar detalle según tipo + disponibilidad de la fecha ──
+async function prepararPaso2(){
+  const cont=document.getElementById('detalleTipo');
+  const fecha=document.getElementById('fFecha').value;
+  if(tipo==='quincho'||tipo==='asador'){
+    cont.innerHTML='<p style="color:#5c6f66;font-size:14px">Cargando disponibilidad…</p>';
+    try{dispo=await apiGet('/api/publico/disponibilidad?fecha='+fecha);}catch(e){dispo={quinchos:[],asadores:[]};}
+  }
+  renderDetalle();
+  renderVehiculos();
+}
+function onFechaChange(){ if(document.getElementById('p2').classList.contains('show'))prepararPaso2(); }
+
+function renderDetalle(){
+  const cont=document.getElementById('detalleTipo');
+  if(tipo==='quincho'){
+    const libres=(dispo.quinchos||[]).filter(q=>q.libre);
+    if(!libres.length){cont.innerHTML='<p style="color:#c0392b;font-size:14px">No hay quinchos disponibles para esa fecha.</p>';quinchoSel=null;return;}
+    if(!quinchoSel||!libres.find(q=>q.id==quinchoSel))quinchoSel=libres[0].id;
+    cont.innerHTML='<div class="fld"><label>Elegí el quincho</label><select id="selQuincho" onchange="quinchoSel=this.value">'+
+      libres.map(q=>`<option value="${q.id}" ${q.id==quinchoSel?'selected':''}>${q.nombre} — ${q.capacidad} personas</option>`).join('')+'</select></div>';
+  }else if(tipo==='asador'){
+    const libres=(dispo.asadores||[]).filter(a=>a.libre);
+    if(!libres.length){cont.innerHTML='<p style="color:#c0392b;font-size:14px">No hay asadores disponibles para esa fecha.</p>';asadorSel=null;return;}
+    if(!asadorSel||!libres.find(a=>a.id==asadorSel))asadorSel=libres[0].id;
+    cont.innerHTML='<div class="fld"><label>Elegí el asador</label><select id="selAsador" onchange="asadorSel=this.value">'+
+      libres.map(a=>`<option value="${a.id}" ${a.id==asadorSel?'selected':''}>${a.nombre}</option>`).join('')+'</select></div>'+
+      stepperHtml('Cantidad de personas','sPers',personas,'stepPers');
+  }else if(tipo==='pileta'){
+    cont.innerHTML=stepperHtml('Niños (hasta 10 años)','sNinos',ninos,'stepNinos')+stepperHtml('Adultos','sAdultos',adultos,'stepAdultos');
+  }else{ // acampe
+    cont.innerHTML=stepperHtml('Cantidad de personas','sPers',personas,'stepPers');
+  }
+}
+
+// ── estacionamiento (varios vehículos) ──
+function addVehiculo(){
+  const sel=document.getElementById('vehSel');const clave=sel.value;if(!clave)return;
+  vehiculosSel.push(clave);sel.value='';renderVehiculos();
+}
+function quitarVehiculo(i){vehiculosSel.splice(i,1);renderVehiculos();}
+function renderVehiculos(){
+  const cont=document.getElementById('vehLista');if(!cont)return;
+  if(!vehiculosSel.length){cont.innerHTML='<p class="veh-empty">Sin vehículos agregados.</p>';return;}
+  cont.innerHTML=vehiculosSel.map((c,i)=>{const v=tarifasVeh.find(t=>t.tipo===c)||{descripcion:c,precio:0};
+    return `<div class="veh-row"><span>🚗 ${v.descripcion} — $${Number(v.precio).toLocaleString('es-AR')}</span><button type="button" onclick="quitarVehiculo(${i})">✕</button></div>`;}).join('');
+}
+
+// ── Paso 2→3: crea la reserva PENDIENTE (sin QR) y muestra el desglose ──
 let reservaActual=null;
+function detalleTexto(){
+  if(tipo==='quincho'){const q=(dispo.quinchos||[]).find(x=>x.id==quinchoSel);return q?q.nombre:'Quincho';}
+  if(tipo==='asador'){const a=(dispo.asadores||[]).find(x=>x.id==asadorSel);return (a?a.nombre:'Asador')+' · '+personas+' pers';}
+  if(tipo==='pileta')return ninos+' niños · '+adultos+' adultos';
+  return personas+' personas';
+}
+function setRow(id,val){const el=document.getElementById(id);if(el)el.textContent='$'+Number(val||0).toLocaleString('es-AR');}
 async function crearReserva(ev){
   if(!localStorage.getItem(TOKK)){openOvl('ovlReg');return;}
   const btn=ev&&ev.target; if(btn){btn.disabled=true;btn.textContent='Verificando…';}
   try{
     const fecha=document.getElementById('fFecha').value;
-    const data=await apiPost('/api/publico/reservas',{tipo:TIPO_API[tipo]||'pase_dia',fecha,cantidad_personas:personas},true);
+    const body={tipo,fecha,vehiculos:vehiculosSel};
+    if(tipo==='quincho'){if(!quinchoSel)throw new Error('Elegí un quincho disponible');body.quincho_id=quinchoSel;}
+    else if(tipo==='asador'){if(!asadorSel)throw new Error('Elegí un asador disponible');body.asador_id=asadorSel;body.cantidad_personas=personas;}
+    else if(tipo==='pileta'){if(ninos+adultos<1)throw new Error('Indicá al menos una persona');body.cantidad_ninos=ninos;body.cantidad_adultos=adultos;}
+    else body.cantidad_personas=personas; // acampe
+    const data=await apiPost('/api/publico/reservas',body,true);
     reservaActual=data.reserva;
-    document.getElementById('pgTipo').textContent=tipo;
+    const dg=data.desglose||{};
+    document.getElementById('pgTipo').textContent=tipoLabelSel;
     const f=fecha.split('-');document.getElementById('pgFecha').textContent=f[2]+'/'+f[1]+'/'+f[0];
-    document.getElementById('pgPers').textContent=personas;
+    document.getElementById('pgDet').textContent=detalleTexto();
+    setRow('pgIngreso',dg.monto_ingreso);setRow('pgRecargo',dg.recargo);setRow('pgEstac',dg.estacionamiento);
+    document.getElementById('rowRecargo').style.display=(dg.recargo>0)?'':'none';
+    document.getElementById('rowEstac').style.display=(dg.estacionamiento>0)?'':'none';
     document.getElementById('pgMonto').textContent='$'+Number(data.reserva.monto).toLocaleString('es-AR');
     goStep(3);
   }catch(err){
@@ -1277,7 +1406,7 @@ async function crearReserva(ev){
   }finally{ if(btn){btn.disabled=false;btn.textContent='Ir al pago →';} }
 }
 
-// Paso 3→4: paga (simulado) y RECIÉN AHÍ genera y muestra el QR
+// ── Paso 3→4: paga (simulado) y RECIÉN AHÍ genera y muestra el QR ──
 async function pagarReserva(ev){
   if(!reservaActual)return;
   const btn=ev&&ev.target; if(btn){btn.disabled=true;btn.textContent='Procesando pago…';}
@@ -1286,12 +1415,13 @@ async function pagarReserva(ev){
     goStep(4);
     const cv=document.getElementById('qrBook');cv.classList.remove('qr-pop');void cv.offsetWidth;cv.classList.add('qr-pop');
     realQR('qrBook',data.qr.token);
-    document.getElementById('rTipo').textContent=tipo;
+    const pers = tipo==='pileta' ? (ninos+adultos) : personas;
+    document.getElementById('rTipo').textContent=tipoLabelSel;
     document.getElementById('rFecha').textContent=document.getElementById('pgFecha').textContent;
-    document.getElementById('rPers').textContent=personas;
-    const esQ=tipo==='Quincho';
-    document.getElementById('rCupo').textContent=esQ?('Quincho · cupo '+reservaActual.cupo+' lugares'):('Personas en este QR: '+personas);
-    setTimeout(()=>{document.getElementById('rBar').style.width=(esQ?(personas/reservaActual.cupo*100):(personas/8*100))+'%';},100);
+    document.getElementById('rPers').textContent=pers;
+    const esQ=tipo==='quincho';
+    document.getElementById('rCupo').textContent=esQ?('Quincho · cupo '+reservaActual.cupo+' lugares'):('Personas en este QR: '+pers);
+    setTimeout(()=>{document.getElementById('rBar').style.width=(esQ?(pers/reservaActual.cupo*100):(Math.min(100,pers/reservaActual.cupo*100)))+'%';},100);
   }catch(err){alert('No se pudo procesar el pago: '+err.message);}
   finally{ if(btn){btn.disabled=false;btn.textContent='💳 Pagar ahora';} }
 }
@@ -1323,7 +1453,7 @@ function closeOvls(){if(typeof stopWelcomePoll==='function')stopWelcomePoll();do
 document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeOvls();}));
 
 function reserveCTA(){ if(logged){closeOvls();location.hash='#reservar';} else {openOvl('ovlReg');} }
-function needAuth(){ if(!logged){openOvl('ovlReg');return;} goStep(2); }
+function needAuth(){ if(!logged){openOvl('ovlReg');return;} goStep(2); prepararPaso2(); }
 
 async function doLogin(e){e.preventDefault();const f=e.target;
   try{const d=await apiPost('/api/publico/login',{identificador:f[0].value.trim(),password:f[1].value});
@@ -1358,8 +1488,9 @@ function closeAdmin(){document.getElementById('adminView').classList.remove('sho
 function hexA(h,a){const n=parseInt(h.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
 const ZONES={
   quincho:{c:'#e23b3b',band:'🎟️ Pulsera roja',qr:'Quincho 3',seed:5},
-  pileta :{c:'#2e9d63',band:'🎟️ Pulsera verde',qr:'Pase Pileta',seed:11},
-  acampe :{c:'#2b86c5',band:'🎟️ Pulsera azul',qr:'Acampe',seed:17},
+  pileta :{c:'#38a169',band:'🎟️ Pulsera verde',qr:'Pileta',seed:11},
+  asador :{c:'#dd6b20',band:'🎟️ Pulsera naranja',qr:'Asador 7',seed:23},
+  acampe :{c:'#2b6cb0',band:'🎟️ Pulsera azul',qr:'Acampe',seed:17},
 };
 const demoPhases=['enter','scan','band','depart'];
 let dpi=0, demoTimer=null, curZone='quincho';

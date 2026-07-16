@@ -2,36 +2,27 @@ import express from "express";
 import crypto from "crypto";
 import { Op } from "sequelize";
 import Reserva from "../models/Reserva.js";
+import ReservaVehiculo from "../models/ReservaVehiculo.js";
 import Cliente from "../models/Cliente.js";
 import Zona from "../models/Zona.js";
 import Quincho from "../models/Quincho.js";
-import Tarifa from "../models/Tarifa.js";
+import Asador from "../models/Asador.js";
 import CodigoQR from "../models/CodigoQR.js";
 import { authMiddleware } from "./auth.js";
 import { hasRole } from "../middlewares/authorization.js";
-import { quinchoEstaLibre, aforoUsado, fechaEsPasada } from "../utils/reservas.js";
+import {
+  ZONA_POR_TIPO, siguienteNumero, quinchoEstaLibre, asadorEstaLibre, quinchosLibres,
+  asadoresLibres, aforoUsado, fechaEsPasada, calcularMontoReserva,
+} from "../utils/reservas.js";
 
 const router = express.Router();
-
-// Mapeo tipo de reserva → nombre de zona (la zona define el color de pulsera).
-// pase_dia se trata como acceso general; ajustable según las reglas reales del camping.
-const ZONA_POR_TIPO = {
-  quincho: "Quincho",
-  pase_pileta: "Pileta",
-  pase_dia: "Pileta",
-  acampe: "Acampe",
-};
-
-async function siguienteNumero() {
-  const year = new Date().getFullYear();
-  const count = await Reserva.count({ where: { numero: { [Op.like]: `RES-${year}-%` } } });
-  return `RES-${year}-${String(count + 1).padStart(4, "0")}`;
-}
 
 const includeAll = [
   { model: Cliente, as: "cliente" },
   { model: Zona, as: "zona" },
   { model: Quincho, as: "quincho" },
+  { model: Asador, as: "asador" },
+  { model: ReservaVehiculo, as: "vehiculos" },
 ];
 
 // GET /api/reservas?fecha=&estado=&tipo=
@@ -52,12 +43,13 @@ router.get("/:id", authMiddleware, async (req, res) => {
 });
 
 // POST /api/reservas (admin/cajero)
-// Body: { tipo, fecha, cantidad_personas, quincho_id?, cliente_id? | cliente:{...}, condicion?, monto? }
+// Body: { tipo, fecha, cantidad_personas?, cantidad_ninos?, cantidad_adultos?, quincho_id?, asador_id?,
+//         vehiculos?[], cliente_id? | cliente:{...} }
 router.post("/", authMiddleware, hasRole(["admin", "cajero"]), async (req, res) => {
   try {
     const {
-      tipo, fecha, cantidad_personas = 1, quincho_id = null,
-      cliente_id, cliente, condicion = "general", monto: montoBody,
+      tipo, fecha, cantidad_personas = 1, cantidad_ninos = 0, cantidad_adultos = 0,
+      quincho_id = null, asador_id = null, vehiculos = [], cliente_id, cliente,
     } = req.body;
 
     if (!tipo || !fecha) return res.status(400).json({ message: "Faltan tipo o fecha" });
@@ -77,38 +69,60 @@ router.post("/", authMiddleware, hasRole(["admin", "cajero"]), async (req, res) 
     const zona = await Zona.findOne({ where: { nombre: ZONA_POR_TIPO[tipo] } });
     if (!zona) return res.status(400).json({ message: `No existe la zona "${ZONA_POR_TIPO[tipo]}"` });
 
-    // ── Cupo: quincho usa la capacidad del quincho; el resto, la cantidad de personas ──
-    let cupo = Number(cantidad_personas) || 1;
     let quinchoIdFinal = null;
+    let asadorIdFinal = null;
+    let quinchoSel = null;
+
     if (tipo === "quincho") {
       if (!quincho_id) return res.status(400).json({ message: "Falta el quincho" });
       const quincho = await Quincho.findByPk(quincho_id);
       if (!quincho || !quincho.activo) return res.status(400).json({ message: "Quincho inválido" });
       if (!(await quinchoEstaLibre(quincho.id, fecha)))
         return res.status(409).json({ message: `El ${quincho.nombre} ya está reservado para esa fecha` });
-      cupo = quincho.capacidad;
+      quinchoSel = quincho;
       quinchoIdFinal = quincho.id;
-    } else if (zona.aforo_max > 0) {
+    } else if (tipo === "asador") {
+      if (!asador_id) return res.status(400).json({ message: "Falta el asador" });
+      const asador = await Asador.findByPk(asador_id);
+      if (!asador || !asador.activo) return res.status(400).json({ message: "Asador inválido" });
+      if (!(await asadorEstaLibre(asador.id, fecha)))
+        return res.status(409).json({ message: `El ${asador.nombre} ya está reservado para esa fecha` });
+      asadorIdFinal = asador.id;
+    } else if (tipo === "pileta") {
+      if ((Number(cantidad_ninos) || 0) + (Number(cantidad_adultos) || 0) < 1)
+        return res.status(400).json({ message: "Indicá al menos una persona (niños o adultos) para la pileta" });
+      if (zona.aforo_max > 0) {
+        const usado = await aforoUsado(zona.id, fecha);
+        const personas = (Number(cantidad_ninos) || 0) + (Number(cantidad_adultos) || 0);
+        if (usado + personas > zona.aforo_max)
+          return res.status(409).json({ message: `No hay cupo en ${zona.nombre} para esa fecha (quedan ${Math.max(0, zona.aforo_max - usado)} lugares)` });
+      }
+    } else if (zona.aforo_max > 0) { // acampe
       const usado = await aforoUsado(zona.id, fecha);
       const personas = Number(cantidad_personas) || 1;
       if (usado + personas > zona.aforo_max)
         return res.status(409).json({ message: `No hay cupo en ${zona.nombre} para esa fecha (quedan ${Math.max(0, zona.aforo_max - usado)} lugares)` });
     }
 
-    // ── Monto: del body, o calculado desde la tarifa activa ──
-    let monto = montoBody;
-    if (monto == null) {
-      const tarifa = await Tarifa.findOne({ where: { tipo, condicion, activo: true } });
-      const precio = tarifa ? Number(tarifa.precio) : 0;
-      monto = tipo === "quincho" ? precio : precio * (Number(cantidad_personas) || 1);
-    }
+    // ── Monto (única fuente de verdad) ──
+    const calc = await calcularMontoReserva({
+      tipo, fecha, cantidad_personas, cantidad_ninos, cantidad_adultos, quincho: quinchoSel, vehiculos,
+    });
 
     const numero = await siguienteNumero();
     const reserva = await Reserva.create({
-      numero, tipo, zona_id: zona.id, quincho_id: quinchoIdFinal, cliente_id: clienteId,
-      fecha, cantidad_personas: Number(cantidad_personas) || 1, cupo, monto,
+      numero, tipo, zona_id: zona.id, quincho_id: quinchoIdFinal, asador_id: asadorIdFinal, cliente_id: clienteId,
+      fecha,
+      cantidad_personas: tipo === "pileta" ? (Number(cantidad_ninos) || 0) + (Number(cantidad_adultos) || 0) : (Number(cantidad_personas) || 1),
+      cantidad_ninos: Number(cantidad_ninos) || 0,
+      cantidad_adultos: Number(cantidad_adultos) || 0,
+      cupo: calc.cupo, monto: calc.monto, recargo: calc.recargo, monto_estacionamiento: calc.monto_estacionamiento,
       estado: "pendiente", estado_pago: "pendiente", creado_por_id: req.user.id,
     });
+
+    for (const v of calc.vehiculosDetalle) {
+      await ReservaVehiculo.create({ reserva_id: reserva.id, tipo: v.tipo, descripcion: v.descripcion, precio: v.precio });
+    }
 
     const completa = await Reserva.findByPk(reserva.id, { include: includeAll });
     res.status(201).json(completa);

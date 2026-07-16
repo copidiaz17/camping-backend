@@ -13,9 +13,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import "./models/Usuario.js";
 import "./models/Zona.js";
 import "./models/Quincho.js";
+import "./models/Asador.js";
 import "./models/Tarifa.js";
 import "./models/Cliente.js";
 import "./models/Reserva.js";
+import "./models/ReservaVehiculo.js";
+import "./models/Feriado.js";
 import "./models/CodigoQR.js";
 import "./models/Ingreso.js";
 import "./models/Caja.js";
@@ -36,6 +39,8 @@ import publicoRoutes from "./routes/publico.js";
 import puertaRoutes from "./routes/puerta.js";
 import usuariosRoutes from "./routes/usuarios.js";
 import reportesRoutes from "./routes/reportes.js";
+import feriadosRoutes from "./routes/feriados.js";
+import asadoresRoutes from "./routes/asadores.js";
 
 dotenv.config();
 
@@ -107,6 +112,8 @@ app.use("/api/publico", publicoRoutes);
 app.use("/api/puerta", puertaRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/reportes", reportesRoutes);
+app.use("/api/feriados", feriadosRoutes);
+app.use("/api/asadores", asadoresRoutes);
 
 // ── Handler global de errores para /api: nunca devolver HTML, siempre JSON con el motivo ──
 app.use("/api", (err, req, res, next) => {
@@ -142,6 +149,43 @@ const PORT = process.env.PORT || 3002;
 
     await sequelize.sync(); // crea/actualiza tablas
     console.log("✅ Tablas sincronizadas");
+
+    // ── Migraciones idempotentes (Ordenanza 6582/25): columnas nuevas y ENUM→VARCHAR ──
+    const migraciones = [
+      "ALTER TABLE tarifas MODIFY COLUMN tipo VARCHAR(40) NOT NULL",
+      "ALTER TABLE tarifas ADD COLUMN categoria ENUM('reserva','vehiculo','recargo') NOT NULL DEFAULT 'reserva'",
+      "ALTER TABLE reservas MODIFY COLUMN tipo VARCHAR(20) NOT NULL",
+      "ALTER TABLE reservas ADD COLUMN asador_id INT NULL",
+      "ALTER TABLE reservas ADD COLUMN cantidad_ninos INT NOT NULL DEFAULT 0",
+      "ALTER TABLE reservas ADD COLUMN cantidad_adultos INT NOT NULL DEFAULT 0",
+      "ALTER TABLE reservas ADD COLUMN recargo DECIMAL(12,2) NOT NULL DEFAULT 0",
+      "ALTER TABLE reservas ADD COLUMN monto_estacionamiento DECIMAL(12,2) NOT NULL DEFAULT 0",
+      "ALTER TABLE quinchos ADD COLUMN tamano ENUM('grande','mediano') NOT NULL DEFAULT 'grande'",
+    ];
+    for (const sql of migraciones) {
+      try {
+        await sequelize.query(sql);
+      } catch (e) {
+        // Ignora si la columna ya existe (ER_DUP_FIELDNAME) — la migración ya corrió
+        if (e.original?.errno !== 1060 && !/duplicate column/i.test(e.message)) {
+          console.warn("⚠️ Migración:", sql.slice(0, 60), "→", e.message);
+        }
+      }
+    }
+    console.log("✅ Migraciones 6582 aplicadas");
+
+    // ── Seed inicial 6582 (una sola vez, si los precios nuevos no existen todavía) ──
+    try {
+      const Tarifa = (await import("./models/Tarifa.js")).default;
+      const yaCargado = await Tarifa.findOne({ where: { tipo: "quincho_grande" } });
+      if (!yaCargado) {
+        const { seed6582 } = await import("./utils/seed6582.js");
+        await seed6582();
+        console.log("✅ Seed 6582 inicial cargado (tarifas, quinchos, asadores, zonas, feriados)");
+      }
+    } catch (e) {
+      console.warn("⚠️ Seed 6582 inicial:", e.message);
+    }
 
     app.listen(PORT, () => console.log(`✅ Servidor corriendo en puerto ${PORT}`));
   } catch (err) {

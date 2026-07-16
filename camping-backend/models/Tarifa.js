@@ -5,9 +5,17 @@ const Tarifa = sequelize.define(
   "Tarifa",
   {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    // Clave del precio (catálogo). Ej: quincho_grande, quincho_mediano, acampe, asador,
+    // pileta_nino, pileta_adulto, veh_camion, veh_automovil, ..., recargo_finde
     tipo: {
-      type: DataTypes.ENUM("pase_dia", "pase_pileta", "quincho", "acampe"),
+      type: DataTypes.STRING(40),
       allowNull: false,
+    },
+    // Agrupa el precio para la UI/admin: reserva | vehiculo | recargo
+    categoria: {
+      type: DataTypes.ENUM("reserva", "vehiculo", "recargo"),
+      allowNull: false,
+      defaultValue: "reserva",
     },
     descripcion: { type: DataTypes.STRING, allowNull: false },
     precio: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 },
